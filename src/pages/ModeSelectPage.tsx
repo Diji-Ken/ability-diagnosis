@@ -40,7 +40,7 @@ export function ModeSelectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center px-4 py-8">
+    <div className="flex flex-col items-center justify-center px-4 py-8">
       <div className="max-w-md w-full space-y-6 animate-fade-in-up">
         {/* Header */}
         <div className="text-center mb-8">

@@ -4,6 +4,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { getDiagnosisHistory } from '@/lib/api/diagnosis'
 import type { DiagnosisRecord } from '@/lib/api/diagnosis'
 import { JOBS } from '@/data/jobs'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { Swords, Sparkles, ArrowRight, Clock } from 'lucide-react'
 
 const tierConfig: Record<string, { label: string; color: string }> = {
@@ -40,7 +41,7 @@ export function HistoryPage() {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <Swords className="w-12 h-12 text-gold mx-auto mb-4 animate-pulse" />
-          <p className="text-text-secondary">履歴を読み込み中...</p>
+          <p className="text-text-secondary">{'\u5c65\u6b74\u3092\u8aad\u307f\u8fbc\u307f\u4e2d...'}</p>
         </div>
       </div>
     )
@@ -49,21 +50,21 @@ export function HistoryPage() {
   return (
     <>
       {/* Header */}
-      <header className="border-b border-border-rpg/30 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
+      <PageHeader>
+        <div className="flex items-center gap-3">
           <Clock className="w-6 h-6 text-gold" />
-          <h1 className="text-gold font-bold text-lg">診断履歴</h1>
+          <h1 className="text-gold font-bold text-lg">{'\u8a3a\u65ad\u5c65\u6b74'}</h1>
         </div>
-      </header>
+      </PageHeader>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         {history.length === 0 ? (
           <div className="rpg-frame p-8 text-center">
             <Sparkles className="w-12 h-12 text-gold mx-auto mb-3" />
-            <h2 className="text-xl font-bold text-gold mb-2">まだ診断していません</h2>
-            <p className="text-text-secondary text-sm mb-4">あなたのRPGジョブを見つけましょう</p>
+            <h2 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
+            <p className="text-text-secondary text-sm mb-4">{'\u3042\u306a\u305f\u306eRPG\u30b8\u30e7\u30d6\u3092\u898b\u3064\u3051\u307e\u3057\u3087\u3046'}</p>
             <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
-              診断をはじめる
+              {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
             </Link>
           </div>
         ) : (
@@ -79,7 +80,7 @@ export function HistoryPage() {
                     <div className="flex items-center gap-2">
                       {record.is_latest && (
                         <span className="text-xs font-bold px-2 py-0.5 rounded bg-gold/20 text-gold border border-gold/40">
-                          最新
+                          {'\u6700\u65b0'}
                         </span>
                       )}
                       {tier && (

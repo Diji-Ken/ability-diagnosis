@@ -6,6 +6,7 @@ import { getRecentMoods } from '@/lib/api/journal'
 import { MoodTrendChart } from '@/components/analysis/MoodTrendChart'
 import { WeeklyStatsCards } from '@/components/analysis/WeeklyStatsCards'
 import { supabase } from '@/lib/supabase'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { BarChart3, Swords } from 'lucide-react'
 
 export function WeeklyReportPage() {
@@ -69,17 +70,17 @@ export function WeeklyReportPage() {
   const avgMood = moodValues.length > 0
     ? moodValues.reduce((a, b) => a + b, 0) / moodValues.length
     : 0
-  const moodTrend = avgMood >= 4 ? 'ポジティブ' : avgMood >= 3 ? '安定' : avgMood >= 2 ? 'やや不調' : '要注意'
+  const moodTrend = avgMood >= 4 ? '\u30dd\u30b8\u30c6\u30a3\u30d6' : avgMood >= 3 ? '\u5b89\u5b9a' : avgMood >= 2 ? '\u3084\u3084\u4e0d\u8abf' : '\u8981\u6ce8\u610f'
   const trendColor = avgMood >= 4 ? 'text-green-400' : avgMood >= 3 ? 'text-gold' : avgMood >= 2 ? 'text-orange-400' : 'text-red-400'
 
   return (
     <>
-      <header className="border-b border-border-rpg/30 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
+      <PageHeader>
+        <div className="flex items-center gap-3">
           <BarChart3 className="w-6 h-6 text-gold" />
-          <h1 className="text-gold font-bold text-lg">週間レポート</h1>
+          <h1 className="text-gold font-bold text-lg">{'\u9031\u9593\u30ec\u30dd\u30fc\u30c8'}</h1>
         </div>
-      </header>
+      </PageHeader>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Weekly Stats */}
@@ -92,34 +93,34 @@ export function WeeklyReportPage() {
 
         {/* Mood Trend */}
         <div className="rpg-frame p-6">
-          <h2 className="text-gold font-bold mb-1">ムードトレンド</h2>
+          <h2 className="text-gold font-bold mb-1">{'\u30e0\u30fc\u30c9\u30c8\u30ec\u30f3\u30c9'}</h2>
           <p className={`text-sm ${trendColor} font-medium mb-4`}>
-            今週の傾向: {moodTrend}
-            {avgMood > 0 && ` (平均: ${avgMood.toFixed(1)})`}
+            {'\u4eca\u9031\u306e\u50be\u5411: '}{moodTrend}
+            {avgMood > 0 && ` (\u5e73\u5747: ${avgMood.toFixed(1)})`}
           </p>
           <MoodTrendChart data={moods} />
         </div>
 
         {/* Summary */}
         <div className="rpg-frame p-6">
-          <h2 className="text-gold font-bold mb-3">今週のまとめ</h2>
+          <h2 className="text-gold font-bold mb-3">{'\u4eca\u9031\u306e\u307e\u3068\u3081'}</h2>
           <div className="space-y-3 text-foreground text-sm">
             {activeDays >= 5 ? (
-              <p>素晴らしい！今週は{activeDays}日間アクティブでした。この調子を維持しましょう。</p>
+              <p>{'\u7d20\u6674\u3089\u3057\u3044\uff01\u4eca\u9031\u306f'}{activeDays}{'\u65e5\u9593\u30a2\u30af\u30c6\u30a3\u30d6\u3067\u3057\u305f\u3002\u3053\u306e\u8abf\u5b50\u3092\u7dad\u6301\u3057\u307e\u3057\u3087\u3046\u3002'}</p>
             ) : activeDays >= 3 ? (
-              <p>今週は{activeDays}日間アクティブでした。もう少し頑張れば習慣化できます。</p>
+              <p>{'\u4eca\u9031\u306f'}{activeDays}{'\u65e5\u9593\u30a2\u30af\u30c6\u30a3\u30d6\u3067\u3057\u305f\u3002\u3082\u3046\u5c11\u3057\u9811\u5f35\u308c\u3070\u7fd2\u6163\u5316\u3067\u304d\u307e\u3059\u3002'}</p>
             ) : (
-              <p>今週のアクティブ日数は{activeDays}日でした。少しずつ習慣を作っていきましょう。</p>
+              <p>{'\u4eca\u9031\u306e\u30a2\u30af\u30c6\u30a3\u30d6\u65e5\u6570\u306f'}{activeDays}{'\u65e5\u3067\u3057\u305f\u3002\u5c11\u3057\u305a\u3064\u7fd2\u6163\u3092\u4f5c\u3063\u3066\u3044\u304d\u307e\u3057\u3087\u3046\u3002'}</p>
             )}
 
             {gamification && gamification.current_streak >= 3 && (
               <p className="text-orange-400">
-                {gamification.current_streak}日連続ログイン中！ストリークを途切れさせないようにしましょう。
+                {gamification.current_streak}{'\u65e5\u9023\u7d9a\u30ed\u30b0\u30a4\u30f3\u4e2d\uff01\u30b9\u30c8\u30ea\u30fc\u30af\u3092\u9014\u5207\u308c\u3055\u305b\u306a\u3044\u3088\u3046\u306b\u3057\u307e\u3057\u3087\u3046\u3002'}
               </p>
             )}
 
             {weeklyExp > 0 && (
-              <p>今週{weeklyExp}EXPを獲得しました。着実にレベルアップしています！</p>
+              <p>{'\u4eca\u9031'}{weeklyExp}{'EXP\u3092\u7372\u5f97\u3057\u307e\u3057\u305f\u3002\u7740\u5b9f\u306b\u30ec\u30d9\u30eb\u30a2\u30c3\u30d7\u3057\u3066\u3044\u307e\u3059\uff01'}</p>
             )}
           </div>
         </div>

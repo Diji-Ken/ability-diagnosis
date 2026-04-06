@@ -4,6 +4,7 @@ import { getLatestDiagnosis } from '@/lib/api/diagnosis'
 import type { DiagnosisRecord } from '@/lib/api/diagnosis'
 import { JOBS } from '@/data/jobs'
 import { ShareCardCanvas } from '@/components/social/ShareCardCanvas'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { Download, Share2, Swords, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -32,7 +33,7 @@ export function ShareCardPage() {
   const handleShare = async () => {
     if (!cardDataUrl || !diagnosis) return
 
-    const text = `ABILITY JOB DIAGNOSIS\n私のジョブは「${diagnosis.primary_job_name}」（マッチ度${diagnosis.match_score}%）\n\n#AbilityJob #RPG診断`
+    const text = `ABILITY JOB DIAGNOSIS\n\u79c1\u306e\u30b8\u30e7\u30d6\u306f\u300c${diagnosis.primary_job_name}\u300d\uff08\u30de\u30c3\u30c1\u5ea6${diagnosis.match_score}%\uff09\n\n#AbilityJob #RPG\u8a3a\u65ad`
 
     if (navigator.share) {
       try {
@@ -60,26 +61,26 @@ export function ShareCardPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-12 text-center">
         <Sparkles className="w-12 h-12 text-gold mx-auto mb-3" />
-        <h2 className="text-xl font-bold text-gold mb-2">まだ診断していません</h2>
-        <p className="text-text-secondary text-sm mb-4">診断を完了するとシェアカードを作成できます</p>
+        <h2 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
+        <p className="text-text-secondary text-sm mb-4">{'\u8a3a\u65ad\u3092\u5b8c\u4e86\u3059\u308b\u3068\u30b7\u30a7\u30a2\u30ab\u30fc\u30c9\u3092\u4f5c\u6210\u3067\u304d\u307e\u3059'}</p>
         <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
-          診断をはじめる
+          {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
         </Link>
       </div>
     )
   }
 
   const job = JOBS.find(j => j.id === diagnosis.primary_job_id)
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || '冒険者'
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || '\u5192\u967a\u8005'
 
   return (
     <>
-      <header className="border-b border-border-rpg/30 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
+      <PageHeader>
+        <div className="flex items-center gap-3">
           <Share2 className="w-6 h-6 text-gold" />
-          <h1 className="text-gold font-bold text-lg">シェアカード</h1>
+          <h1 className="text-gold font-bold text-lg">{'\u30b7\u30a7\u30a2\u30ab\u30fc\u30c9'}</h1>
         </div>
-      </header>
+      </PageHeader>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         <div className="rpg-frame p-4">
@@ -102,7 +103,7 @@ export function ShareCardPage() {
             className="rpg-button py-3 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Download className="w-5 h-5" />
-            <span>ダウンロード</span>
+            <span>{'\u30c0\u30a6\u30f3\u30ed\u30fc\u30c9'}</span>
           </button>
           <button
             onClick={handleShare}
@@ -110,12 +111,12 @@ export function ShareCardPage() {
             className="rpg-frame py-3 flex items-center justify-center gap-2 text-gold hover:border-gold transition-colors disabled:opacity-50"
           >
             <Share2 className="w-5 h-5" />
-            <span>シェアする</span>
+            <span>{'\u30b7\u30a7\u30a2\u3059\u308b'}</span>
           </button>
         </div>
 
         <p className="text-text-secondary text-xs text-center">
-          カードを保存してSNSでシェアしよう！
+          {'\u30ab\u30fc\u30c9\u3092\u4fdd\u5b58\u3057\u3066SNS\u3067\u30b7\u30a7\u30a2\u3057\u3088\u3046\uff01'}
         </p>
       </main>
     </>

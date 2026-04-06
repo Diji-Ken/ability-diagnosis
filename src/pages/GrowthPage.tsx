@@ -8,6 +8,7 @@ import { getEvolutionHistory } from '@/lib/api/evolution'
 import { SkillTrendChart } from '@/components/growth/SkillTrendChart'
 import { BadgeGallery } from '@/components/gamification/BadgeGallery'
 import { JOBS } from '@/data/jobs'
+import { PageHeader } from '@/components/layout/PageHeader'
 import type { GamificationState } from '@/lib/api/gamification'
 import type { UserBadge } from '@/lib/api/badges'
 import type { CoreParams } from '@/types/diagnosis'
@@ -106,12 +107,12 @@ export function GrowthPage() {
   return (
     <>
       {/* Header */}
-      <header className="border-b border-border-rpg/30 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
+      <PageHeader>
+        <div className="flex items-center gap-3">
           <TrendingUp className="w-6 h-6 text-gold" />
-          <h1 className="text-gold font-bold text-lg">成長記録</h1>
+          <h1 className="text-gold font-bold text-lg">{'\u6210\u9577\u8a18\u9332'}</h1>
         </div>
-      </header>
+      </PageHeader>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Level Progress Card */}
@@ -119,11 +120,11 @@ export function GrowthPage() {
           <div className="rpg-frame p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <p className="text-text-secondary text-sm">現在のレベル</p>
+                <p className="text-text-secondary text-sm">{'\u73fe\u5728\u306e\u30ec\u30d9\u30eb'}</p>
                 <p className="text-2xl font-bold text-gold">Lv.{levelInfo.level}</p>
               </div>
               <div className="text-right">
-                <p className="text-text-secondary text-sm">称号</p>
+                <p className="text-text-secondary text-sm">{'\u79f0\u53f7'}</p>
                 <p className="text-lg font-bold text-foreground">{levelInfo.title}</p>
               </div>
             </div>
@@ -134,13 +135,13 @@ export function GrowthPage() {
                 {tierLabels[levelInfo.tier]}
               </span>
               {levelInfo.level < TIER_LEVEL_REQUIREMENTS.standard && (
-                <span className="text-xs text-text-secondary">Lv.{TIER_LEVEL_REQUIREMENTS.standard}でStandard解放</span>
+                <span className="text-xs text-text-secondary">Lv.{TIER_LEVEL_REQUIREMENTS.standard}{'\u3067Standard\u89e3\u653e'}</span>
               )}
               {levelInfo.level >= TIER_LEVEL_REQUIREMENTS.standard && levelInfo.level < TIER_LEVEL_REQUIREMENTS.expert && (
-                <span className="text-xs text-text-secondary">Lv.{TIER_LEVEL_REQUIREMENTS.expert}でExpert解放</span>
+                <span className="text-xs text-text-secondary">Lv.{TIER_LEVEL_REQUIREMENTS.expert}{'\u3067Expert\u89e3\u653e'}</span>
               )}
               {levelInfo.level >= TIER_LEVEL_REQUIREMENTS.expert && levelInfo.level < TIER_LEVEL_REQUIREMENTS.legend && (
-                <span className="text-xs text-text-secondary">Lv.{TIER_LEVEL_REQUIREMENTS.legend}でLegend解放</span>
+                <span className="text-xs text-text-secondary">Lv.{TIER_LEVEL_REQUIREMENTS.legend}{'\u3067Legend\u89e3\u653e'}</span>
               )}
             </div>
 
@@ -148,7 +149,7 @@ export function GrowthPage() {
               <div>
                 <div className="flex justify-between text-xs text-text-secondary mb-1">
                   <span>EXP: {levelInfo.expInLevel} / {levelInfo.expForNext}</span>
-                  <span>次のレベルまで {levelInfo.expForNext - levelInfo.expInLevel} EXP</span>
+                  <span>{'\u6b21\u306e\u30ec\u30d9\u30eb\u307e\u3067 '}{levelInfo.expForNext - levelInfo.expInLevel}{' EXP'}</span>
                 </div>
                 <div className="w-full h-3 bg-bg-primary rounded-full overflow-hidden border border-border-rpg">
                   <div
@@ -160,21 +161,21 @@ export function GrowthPage() {
             )}
 
             {levelInfo.isMaxLevel && (
-              <p className="text-gold text-sm text-center mt-2">最高レベルに到達しました！</p>
+              <p className="text-gold text-sm text-center mt-2">{'\u6700\u9ad8\u30ec\u30d9\u30eb\u306b\u5230\u9054\u3057\u307e\u3057\u305f\uff01'}</p>
             )}
 
             <div className="flex justify-between mt-4 text-sm">
               <div className="text-center">
-                <p className="text-text-secondary">総EXP</p>
+                <p className="text-text-secondary">{'\u7dcfEXP'}</p>
                 <p className="text-foreground font-bold">{gamification.total_exp}</p>
               </div>
               <div className="text-center">
-                <p className="text-text-secondary">ポイント</p>
+                <p className="text-text-secondary">{'\u30dd\u30a4\u30f3\u30c8'}</p>
                 <p className="text-foreground font-bold">{gamification.points}</p>
               </div>
               <div className="text-center">
-                <p className="text-text-secondary">連続日数</p>
-                <p className="text-foreground font-bold">{gamification.current_streak}日</p>
+                <p className="text-text-secondary">{'\u9023\u7d9a\u65e5\u6570'}</p>
+                <p className="text-foreground font-bold">{gamification.current_streak}{'\u65e5'}</p>
               </div>
             </div>
           </div>
@@ -185,7 +186,7 @@ export function GrowthPage() {
           <div className="rpg-frame p-5">
             <div className="flex items-center gap-2 mb-4">
               <Zap className="w-5 h-5 text-yellow-400" />
-              <h2 className="text-lg font-bold text-foreground">進化履歴</h2>
+              <h2 className="text-lg font-bold text-foreground">{'\u9032\u5316\u5c65\u6b74'}</h2>
             </div>
             <div className="space-y-3">
               {evolutions.map((evo) => {
@@ -196,12 +197,13 @@ export function GrowthPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 text-sm">
                         <span className="text-text-secondary">{fromJob?.name ?? evo.from_job_id}</span>
-                        <span className="text-gold">→</span>
+                        <span className="text-gold">{'\u2192'}</span>
                         <span className="text-gold font-bold">{toJob?.name ?? evo.to_job_id}</span>
                       </div>
                       <p className="text-xs text-text-secondary mt-1">
-                        {evo.trigger_type === 'level_up' ? 'レベルアップ進化' : '再診断進化'}
-                        ・+{evo.exp_awarded} EXP
+                        {evo.trigger_type === 'level_up' ? '\u30ec\u30d9\u30eb\u30a2\u30c3\u30d7\u9032\u5316' : '\u518d\u8a3a\u65ad\u9032\u5316'}
+                        {'\u30fb+'}
+                        {evo.exp_awarded}{' EXP'}
                       </p>
                     </div>
                     <div className="text-xs text-text-secondary">
@@ -217,15 +219,15 @@ export function GrowthPage() {
         {/* Skill Trend Chart */}
         {skillHistory.length >= 2 && (
           <div className="rpg-frame p-5">
-            <h2 className="text-lg font-bold text-foreground mb-4">スキル推移</h2>
+            <h2 className="text-lg font-bold text-foreground mb-4">{'\u30b9\u30ad\u30eb\u63a8\u79fb'}</h2>
             <SkillTrendChart history={skillHistory} />
           </div>
         )}
 
         {skillHistory.length === 1 && (
           <div className="rpg-frame p-5">
-            <h2 className="text-lg font-bold text-foreground mb-2">スキル推移</h2>
-            <p className="text-text-secondary text-sm">診断を2回以上行うとスキル推移グラフが表示されます。</p>
+            <h2 className="text-lg font-bold text-foreground mb-2">{'\u30b9\u30ad\u30eb\u63a8\u79fb'}</h2>
+            <p className="text-text-secondary text-sm">{'\u8a3a\u65ad\u30922\u56de\u4ee5\u4e0a\u884c\u3046\u3068\u30b9\u30ad\u30eb\u63a8\u79fb\u30b0\u30e9\u30d5\u304c\u8868\u793a\u3055\u308c\u307e\u3059\u3002'}</p>
           </div>
         )}
 
@@ -236,7 +238,7 @@ export function GrowthPage() {
 
         {/* Level Roadmap (Milestone-based for 100 levels) */}
         <div className="rpg-frame p-5">
-          <h2 className="text-lg font-bold text-foreground mb-4">レベルロードマップ</h2>
+          <h2 className="text-lg font-bold text-foreground mb-4">{'\u30ec\u30d9\u30eb\u30ed\u30fc\u30c9\u30de\u30c3\u30d7'}</h2>
           <div className="space-y-2">
             {visibleThresholds.map((threshold) => {
               const isCurrent = levelInfo?.level === threshold.level
@@ -271,7 +273,7 @@ export function GrowthPage() {
                     </span>
                     {isTierGate && (
                       <span className={`text-xs font-bold border px-1.5 py-0.5 rounded ${tierColors[threshold.tier]}`}>
-                        {tierLabels[threshold.tier]}解放
+                        {tierLabels[threshold.tier]}{'\u89e3\u653e'}
                       </span>
                     )}
                   </div>

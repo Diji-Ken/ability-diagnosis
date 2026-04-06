@@ -8,6 +8,7 @@ import { ANIMAL_CHARACTERS } from '@/data/animals'
 import type { CoreParams } from '@/types/diagnosis'
 import type { AnimalCharacter } from '@/data/animals'
 import type { Job } from '@/types/diagnosis'
+import { PageHeader } from '@/components/layout/PageHeader'
 import {
   HeartHandshake, Sparkles, Heart, TrendingUp, Target,
   Lightbulb, AlertTriangle, ArrowRight, Star,
@@ -142,12 +143,12 @@ export function RomanceAnalysisPage() {
 
   return (
     <>
-      <header className="border-b border-border-rpg/30 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
+      <PageHeader>
+        <div className="flex items-center gap-3">
           <HeartHandshake className="w-6 h-6 text-fire" />
           <h1 className="text-fire font-bold text-lg">Romance Analysis</h1>
         </div>
-      </header>
+      </PageHeader>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Love Type */}

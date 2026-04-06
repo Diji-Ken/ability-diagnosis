@@ -4,6 +4,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { useMode } from '@/providers/ModeProvider'
 import { getProfile, updateProfile } from '@/lib/api/profile'
 import type { UserProfile } from '@/lib/api/profile'
+import { PageHeader } from '@/components/layout/PageHeader'
 import {
   ArrowLeft, Save, LogOut, Loader2, Check, AlertCircle, Swords, Heart,
 } from 'lucide-react'
@@ -52,10 +53,10 @@ export function SettingsPage() {
     })
 
     if (error) {
-      showMessage('error', '保存に失敗しました')
+      showMessage('error', '\u4fdd\u5b58\u306b\u5931\u6557\u3057\u307e\u3057\u305f')
     } else {
       if (data) setProfile(data)
-      showMessage('success', '保存しました')
+      showMessage('success', '\u4fdd\u5b58\u3057\u307e\u3057\u305f')
     }
     setSaving(false)
   }
@@ -68,7 +69,7 @@ export function SettingsPage() {
   const memberSince = user?.created_at
     ? (() => {
         const d = new Date(user.created_at)
-        return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+        return `${d.getFullYear()}\u5e74${d.getMonth() + 1}\u6708${d.getDate()}\u65e5`
       })()
     : null
 
@@ -77,7 +78,7 @@ export function SettingsPage() {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-gold mx-auto mb-4 animate-spin" />
-          <p className="text-text-secondary">設定を読み込み中...</p>
+          <p className="text-text-secondary">{'\u8a2d\u5b9a\u3092\u8aad\u307f\u8fbc\u307f\u4e2d...'}</p>
         </div>
       </div>
     )
@@ -86,14 +87,14 @@ export function SettingsPage() {
   return (
     <>
       {/* Header */}
-      <header className="border-b border-border-rpg/30 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
+      <PageHeader>
+        <div className="flex items-center gap-3">
           <Link to="/profile" className="text-text-secondary hover:text-gold transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-gold font-bold text-xl">設定</h1>
+          <h1 className="text-gold font-bold text-xl">{'\u8a2d\u5b9a'}</h1>
         </div>
-      </header>
+      </PageHeader>
 
       {/* Toast Message */}
       {message && (
@@ -118,31 +119,31 @@ export function SettingsPage() {
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Profile Section */}
         <div className="rpg-frame p-6 space-y-5">
-          <h2 className="text-gold font-bold">プロフィール設定</h2>
+          <h2 className="text-gold font-bold">{'\u30d7\u30ed\u30d5\u30a3\u30fc\u30eb\u8a2d\u5b9a'}</h2>
 
           <div>
             <label htmlFor="displayName" className="block text-text-secondary text-sm mb-1">
-              表示名
+              {'\u8868\u793a\u540d'}
             </label>
             <input
               id="displayName"
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="冒険者の名前を入力"
+              placeholder={'\u5192\u967a\u8005\u306e\u540d\u524d\u3092\u5165\u529b'}
               className="w-full bg-bg-secondary border border-border-rpg rounded-lg px-4 py-2 text-foreground placeholder:text-text-secondary/50 focus:outline-none focus:border-gold transition-colors"
             />
           </div>
 
           <div>
             <label htmlFor="bio" className="block text-text-secondary text-sm mb-1">
-              自己紹介
+              {'\u81ea\u5df1\u7d39\u4ecb'}
             </label>
             <textarea
               id="bio"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              placeholder="あなたについて教えてください"
+              placeholder={'\u3042\u306a\u305f\u306b\u3064\u3044\u3066\u6559\u3048\u3066\u304f\u3060\u3055\u3044'}
               rows={3}
               className="w-full bg-bg-secondary border border-border-rpg rounded-lg px-4 py-2 text-foreground placeholder:text-text-secondary/50 focus:outline-none focus:border-gold transition-colors resize-none"
             />
@@ -150,9 +151,9 @@ export function SettingsPage() {
 
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-foreground text-sm font-medium">プロフィールを公開</span>
+              <span className="text-foreground text-sm font-medium">{'\u30d7\u30ed\u30d5\u30a3\u30fc\u30eb\u3092\u516c\u958b'}</span>
               <p className="text-text-secondary text-xs mt-0.5">
-                他のユーザーがあなたのプロフィールを閲覧できます
+                {'\u4ed6\u306e\u30e6\u30fc\u30b6\u30fc\u304c\u3042\u306a\u305f\u306e\u30d7\u30ed\u30d5\u30a3\u30fc\u30eb\u3092\u95b2\u89a7\u3067\u304d\u307e\u3059'}
               </p>
             </div>
             <button
@@ -182,16 +183,16 @@ export function SettingsPage() {
             ) : (
               <Save className="w-4 h-4" />
             )}
-            <span>{saving ? '保存中...' : '保存する'}</span>
+            <span>{saving ? '\u4fdd\u5b58\u4e2d...' : '\u4fdd\u5b58\u3059\u308b'}</span>
           </button>
         </div>
 
         {/* Account Info Section */}
         <div className="rpg-frame p-6 space-y-4">
-          <h2 className="text-gold font-bold">アカウント情報</h2>
+          <h2 className="text-gold font-bold">{'\u30a2\u30ab\u30a6\u30f3\u30c8\u60c5\u5831'}</h2>
 
           <div>
-            <span className="block text-text-secondary text-sm mb-1">メールアドレス</span>
+            <span className="block text-text-secondary text-sm mb-1">{'\u30e1\u30fc\u30eb\u30a2\u30c9\u30ec\u30b9'}</span>
             <p className="text-foreground bg-bg-secondary rounded-lg px-4 py-2 border border-border-rpg/50">
               {user?.email || '-'}
             </p>
@@ -199,7 +200,7 @@ export function SettingsPage() {
 
           {memberSince && (
             <div>
-              <span className="block text-text-secondary text-sm mb-1">登録日</span>
+              <span className="block text-text-secondary text-sm mb-1">{'\u767b\u9332\u65e5'}</span>
               <p className="text-foreground bg-bg-secondary rounded-lg px-4 py-2 border border-border-rpg/50">
                 {memberSince}
               </p>
@@ -238,13 +239,13 @@ export function SettingsPage() {
 
         {/* Danger Zone */}
         <div className="rpg-frame p-6 border-red-900/50">
-          <h2 className="text-red-400 font-bold mb-4">デンジャーゾーン</h2>
+          <h2 className="text-red-400 font-bold mb-4">{'\u30c7\u30f3\u30b8\u30e3\u30fc\u30be\u30fc\u30f3'}</h2>
           <button
             onClick={handleSignOut}
             className="w-full py-2 px-4 rounded-lg bg-red-900/30 border border-red-800 text-red-400 font-medium hover:bg-red-900/50 transition-colors flex items-center justify-center gap-2"
           >
             <LogOut className="w-4 h-4" />
-            <span>ログアウト</span>
+            <span>{'\u30ed\u30b0\u30a2\u30a6\u30c8'}</span>
           </button>
         </div>
       </main>

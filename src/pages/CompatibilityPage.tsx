@@ -8,6 +8,7 @@ import type { CompatibilityResult } from '@/lib/compatibility'
 import { ComparisonRadarChart } from '@/components/social/ComparisonRadarChart'
 import { JOBS } from '@/data/jobs'
 import { ANIMAL_CHARACTERS } from '@/data/animals'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { Swords, Heart, Sparkles, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
@@ -44,7 +45,7 @@ export function CompatibilityPage() {
       .eq('is_public', true)
 
     if (!profiles || profiles.length === 0) {
-      setSearchError('公開プロフィールが見つかりません')
+      setSearchError('\u516c\u958b\u30d7\u30ed\u30d5\u30a3\u30fc\u30eb\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093')
       setSearching(false)
       return
     }
@@ -84,7 +85,7 @@ export function CompatibilityPage() {
     }
 
     if (!partnerDiagnosis && !result) {
-      setSearchError('診断結果を持つ公開ユーザーが見つかりません')
+      setSearchError('\u8a3a\u65ad\u7d50\u679c\u3092\u6301\u3064\u516c\u958b\u30e6\u30fc\u30b6\u30fc\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093')
     }
     setSearching(false)
   }
@@ -101,10 +102,10 @@ export function CompatibilityPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-12 text-center">
         <Sparkles className="w-12 h-12 text-gold mx-auto mb-3" />
-        <h2 className="text-xl font-bold text-gold mb-2">まだ診断していません</h2>
-        <p className="text-text-secondary text-sm mb-4">相性チェックには診断が必要です</p>
+        <h2 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
+        <p className="text-text-secondary text-sm mb-4">{'\u76f8\u6027\u30c1\u30a7\u30c3\u30af\u306b\u306f\u8a3a\u65ad\u304c\u5fc5\u8981\u3067\u3059'}</p>
         <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
-          診断をはじめる
+          {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
         </Link>
       </div>
     )
@@ -115,26 +116,26 @@ export function CompatibilityPage() {
 
   return (
     <>
-      <header className="border-b border-border-rpg/30 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
+      <PageHeader>
+        <div className="flex items-center gap-3">
           <Heart className="w-6 h-6 text-fire" />
-          <h1 className="text-gold font-bold text-lg">相性チェック</h1>
+          <h1 className="text-gold font-bold text-lg">{'\u76f8\u6027\u30c1\u30a7\u30c3\u30af'}</h1>
         </div>
-      </header>
+      </PageHeader>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* My info */}
         <div className="rpg-frame p-4">
-          <span className="text-text-secondary text-xs">あなた</span>
+          <span className="text-text-secondary text-xs">{'\u3042\u306a\u305f'}</span>
           <h3 className="text-gold font-bold text-lg">{myDiagnosis.primary_job_name}</h3>
           <p className="text-text-secondary text-sm">{myDiagnosis.animal_name} / {myDiagnosis.animal_group}</p>
         </div>
 
         {/* Search partner */}
         <div className="rpg-frame p-6">
-          <h3 className="text-gold font-bold mb-3">相手を探す</h3>
+          <h3 className="text-gold font-bold mb-3">{'\u76f8\u624b\u3092\u63a2\u3059'}</h3>
           <p className="text-text-secondary text-sm mb-4">
-            公開プロフィールを持つユーザーと相性をチェックできます
+            {'\u516c\u958b\u30d7\u30ed\u30d5\u30a3\u30fc\u30eb\u3092\u6301\u3064\u30e6\u30fc\u30b6\u30fc\u3068\u76f8\u6027\u3092\u30c1\u30a7\u30c3\u30af\u3067\u304d\u307e\u3059'}
           </p>
           <button
             onClick={handleSearch}
@@ -142,7 +143,7 @@ export function CompatibilityPage() {
             className="rpg-button w-full py-2 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Search className="w-4 h-4" />
-            <span>{searching ? '検索中...' : '公開ユーザーと相性チェック'}</span>
+            <span>{searching ? '\u691c\u7d22\u4e2d...' : '\u516c\u958b\u30e6\u30fc\u30b6\u30fc\u3068\u76f8\u6027\u30c1\u30a7\u30c3\u30af'}</span>
           </button>
           {searchError && (
             <p className="text-red-400 text-sm mt-2 text-center">{searchError}</p>
@@ -154,7 +155,7 @@ export function CompatibilityPage() {
           <>
             {/* Partner info */}
             <div className="rpg-frame p-4">
-              <span className="text-text-secondary text-xs">相手</span>
+              <span className="text-text-secondary text-xs">{'\u76f8\u624b'}</span>
               <h3 className="text-ice font-bold text-lg">{partnerDiagnosis.primary_job_name}</h3>
               <p className="text-text-secondary text-sm">{partnerDiagnosis.animal_name} / {partnerDiagnosis.animal_group}</p>
             </div>
@@ -171,11 +172,11 @@ export function CompatibilityPage() {
 
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
-                  <span className="text-text-secondary text-xs">グループ相性</span>
+                  <span className="text-text-secondary text-xs">{'\u30b0\u30eb\u30fc\u30d7\u76f8\u6027'}</span>
                   <div className="text-gold font-bold text-xl">{result.groupScore}%</div>
                 </div>
                 <div>
-                  <span className="text-text-secondary text-xs">スキル相性</span>
+                  <span className="text-text-secondary text-xs">{'\u30b9\u30ad\u30eb\u76f8\u6027'}</span>
                   <div className="text-ice font-bold text-xl">{result.paramScore}%</div>
                 </div>
               </div>
@@ -183,7 +184,7 @@ export function CompatibilityPage() {
 
             {/* Radar chart */}
             <div className="rpg-frame p-4">
-              <h3 className="text-gold font-bold text-center mb-2">スキル比較</h3>
+              <h3 className="text-gold font-bold text-center mb-2">{'\u30b9\u30ad\u30eb\u6bd4\u8f03'}</h3>
               <ComparisonRadarChart
                 paramsA={myDiagnosis.core_params}
                 paramsB={partnerDiagnosis.core_params}
@@ -195,7 +196,7 @@ export function CompatibilityPage() {
             {/* Strengths & Challenges */}
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rpg-frame p-4">
-                <h4 className="text-green-400 font-bold mb-2">強み</h4>
+                <h4 className="text-green-400 font-bold mb-2">{'\u5f37\u307f'}</h4>
                 <ul className="space-y-1">
                   {result.strengths.map((s, i) => (
                     <li key={i} className="text-text-secondary text-sm flex gap-2">
@@ -206,7 +207,7 @@ export function CompatibilityPage() {
                 </ul>
               </div>
               <div className="rpg-frame p-4">
-                <h4 className="text-orange-400 font-bold mb-2">課題</h4>
+                <h4 className="text-orange-400 font-bold mb-2">{'\u8ab2\u984c'}</h4>
                 <ul className="space-y-1">
                   {result.challenges.map((c, i) => (
                     <li key={i} className="text-text-secondary text-sm flex gap-2">
