@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/providers/AuthProvider'
-import { useMode } from '@/providers/ModeProvider'
+import { useTrack } from '@/providers/TrackProvider'
 import { getProfile, updateProfile } from '@/lib/api/profile'
 import type { UserProfile } from '@/lib/api/profile'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
-  ArrowLeft, Save, LogOut, Loader2, Check, AlertCircle, Swords, Heart,
+  ArrowLeft, Save, LogOut, Loader2, Check, AlertCircle,
 } from 'lucide-react'
 
 export function SettingsPage() {
   const { user, signOut } = useAuth()
-  const { mode, setMode } = useMode()
+  const { basePath } = useTrack()
   const navigate = useNavigate()
-  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -89,7 +89,7 @@ export function SettingsPage() {
       {/* Header */}
       <PageHeader>
         <div className="flex items-center gap-3">
-          <Link to="/profile" className="text-text-secondary hover:text-gold transition-colors">
+          <Link to={`${basePath}/profile`} className="text-text-secondary hover:text-gold transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="text-gold font-bold text-xl">{'\u8a2d\u5b9a'}</h1>
@@ -206,35 +206,6 @@ export function SettingsPage() {
               </p>
             </div>
           )}
-        </div>
-
-        {/* Mode Settings */}
-        <div className="rpg-frame p-6 space-y-4">
-          <h2 className="text-gold font-bold">Quest Mode</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setMode('business')}
-              className={`rpg-frame p-4 text-center transition-colors ${
-                mode === 'business' ? 'border-gold bg-gold/10' : 'hover:border-gold/50'
-              }`}
-            >
-              <Swords className={`w-8 h-8 mx-auto mb-2 ${mode === 'business' ? 'text-gold' : 'text-text-secondary'}`} />
-              <span className={`text-sm font-bold ${mode === 'business' ? 'text-gold' : 'text-text-secondary'}`}>
-                Business
-              </span>
-            </button>
-            <button
-              onClick={() => setMode('romance')}
-              className={`rpg-frame p-4 text-center transition-colors ${
-                mode === 'romance' ? 'border-fire bg-fire/10' : 'hover:border-fire/50'
-              }`}
-            >
-              <Heart className={`w-8 h-8 mx-auto mb-2 ${mode === 'romance' ? 'text-fire' : 'text-text-secondary'}`} />
-              <span className={`text-sm font-bold ${mode === 'romance' ? 'text-fire' : 'text-text-secondary'}`}>
-                Romance
-              </span>
-            </button>
-          </div>
         </div>
 
         {/* Danger Zone */}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { BookOpen, Save, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
 import { getJournalEntries, getJournalEntry, saveJournalEntry } from '@/lib/api/journal'
 import type { JournalEntry } from '@/lib/api/journal'
 import { updateJournalStreak } from '@/lib/api/gamification'
@@ -15,6 +16,7 @@ function formatDateDisplay(date: string): string {
 
 export function JournalPage() {
   const { user } = useAuth()
+  const { track } = useTrack()
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth() + 1)
@@ -96,7 +98,7 @@ export function JournalPage() {
     } else {
       // Award EXP + Points if content is not empty
       if (content.trim().length > 0) {
-        const result = await updateJournalStreak(user.id)
+        const result = await updateJournalStreak(user.id, track)
         if (result.alreadyRecorded) {
           setFeedback({ type: 'success', message: '\u4fdd\u5b58\u3057\u307e\u3057\u305f' })
         } else {

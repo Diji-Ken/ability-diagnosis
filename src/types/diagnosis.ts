@@ -109,3 +109,23 @@ export interface ShareData {
   a: number; // 動物番号
   n: number; // ライフパスナンバー
 }
+
+// ========================================
+// Track system (2-product split)
+// ========================================
+
+export type Track = "job" | "love";
+
+export interface TrackConfig {
+  track: Track;
+  basePath: "/job" | "/love";
+  jobs: Job[];
+  skillCategories: SkillCategory[];
+  occupations: Occupation[];
+  paramLabels: Record<keyof CoreParams, string>;
+  axisColors: Record<keyof CoreParams, string>;
+  themeAccent: "gold" | "fire";
+  themeClass: "theme-job" | "theme-love";
+  productName: string;
+  productTagline: string;
+}

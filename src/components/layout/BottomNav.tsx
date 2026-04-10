@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { useMode } from '@/providers/ModeProvider'
-import { getTabsForMode } from '@/config/modeNav'
+import { useTrack } from '@/providers/TrackProvider'
+import { getTabsForTrack } from '@/config/trackNav'
 
 export function BottomNav() {
   const location = useLocation()
-  const { mode } = useMode()
-  const tabs = getTabsForMode(mode)
+  const { track } = useTrack()
+  const tabs = getTabsForTrack(track)
 
   return (
     <nav
@@ -22,7 +22,7 @@ export function BottomNav() {
               to={to}
               className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-xs transition-colors ${
                 isActive
-                  ? mode === 'romance' ? 'text-fire' : 'text-gold'
+                  ? track === 'love' ? 'text-fire' : 'text-gold'
                   : 'text-text-secondary'
               }`}
             >

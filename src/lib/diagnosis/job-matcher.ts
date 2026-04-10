@@ -1,24 +1,28 @@
 import type {
   CoreParams,
-  SubParams,
   Job,
   JobMatchResult,
   AnimalResult,
   NumerologyResult,
 } from "@/types/diagnosis";
-import { JOBS } from "@/data/jobs";
 import { calculateSubParams } from "./skill-calculator";
 
 /**
  * コアパラメータからベストマッチのジョブを判定
  * 重み付きユークリッド距離でスコアリング
+ *
+ * @param coreParams ユーザーのコアパラメータ
+ * @param animalResult 動物結果
+ * @param numerologyResult 数秘結果
+ * @param jobs 判定対象ジョブ配列（track別）
  */
 export function matchJob(
   coreParams: CoreParams,
   animalResult: AnimalResult,
-  numerologyResult: NumerologyResult
+  _numerologyResult: NumerologyResult,
+  jobs: Job[],
 ): JobMatchResult {
-  const scored = JOBS.map((job) => {
+  const scored = jobs.map((job) => {
     // 重み付きユークリッド距離
     const distance = Math.sqrt(
       job.weights.communication *
@@ -31,9 +35,7 @@ export function matchJob(
     );
 
     // 動物相性ボーナス
-    const animalBonus = job.compatibleAnimals.includes(animalResult.number)
-      ? 8
-      : 0;
+    const animalBonus = job.compatibleAnimals.includes(animalResult.number) ? 8 : 0;
 
     // 距離を100点満点のスコアに変換
     const maxDistance = 150;
@@ -51,9 +53,9 @@ export function matchJob(
   const primary = scored[0];
   const runnerUp = scored[1];
 
-  // 上級ジョブの解決
+  // 上級ジョブの解決（同じjobs配列内から）
   const advancedJobs = primary.job.advancedJobs
-    .map((id) => JOBS.find((j) => j.id === id))
+    .map((id) => jobs.find((j) => j.id === id))
     .filter((j): j is Job => j !== undefined);
 
   // サブパラメータ算出
@@ -70,25 +72,16 @@ export function matchJob(
 }
 
 /**
- * ジョブ間の差分を計算（上級ジョブへの必要パラメータ差分）
+ * ジョブ間の差分を計算
  */
-export function calculateJobGap(
-  currentParams: CoreParams,
-  targetJob: Job
-): CoreParams {
+export function calculateJobGap(currentParams: CoreParams, targetJob: Job): CoreParams {
   return {
     communication: Math.max(
       0,
-      targetJob.requiredParams.communication - currentParams.communication
+      targetJob.requiredParams.communication - currentParams.communication,
     ),
-    specialist: Math.max(
-      0,
-      targetJob.requiredParams.specialist - currentParams.specialist
-    ),
-    marketing: Math.max(
-      0,
-      targetJob.requiredParams.marketing - currentParams.marketing
-    ),
+    specialist: Math.max(0, targetJob.requiredParams.specialist - currentParams.specialist),
+    marketing: Math.max(0, targetJob.requiredParams.marketing - currentParams.marketing),
     ai: Math.max(0, targetJob.requiredParams.ai - currentParams.ai),
   };
 }

@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
+import { useTrackJobs, useTrackConfig } from '@/hooks/useTrackJobs'
 import { getLatestDiagnosis } from '@/lib/api/diagnosis'
 import type { DiagnosisRecord } from '@/lib/api/diagnosis'
 import { getGamificationState, getLevelFromExp } from '@/lib/api/gamification'
 import type { GamificationState } from '@/lib/api/gamification'
 import { getEvolutionOptions, executeEvolution } from '@/lib/api/evolution'
 import type { EvolutionOption } from '@/lib/api/evolution'
-import { useMode } from '@/providers/ModeProvider'
-import { JOBS } from '@/data/jobs'
 import type { CoreParams } from '@/types/diagnosis'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
-  Swords, RefreshCw, Share2, Heart, HeartHandshake,
-  Flame, Star, Trophy, ArrowRight, TrendingUp,
+  Swords, RefreshCw, Share2, Heart,
+  Flame, Star, Trophy, ArrowRight,
   Sparkles, Brain, BookOpen, BarChart3,
-  Zap,
+  Zap, TrendingUp,
 } from 'lucide-react'
 
 const tierConfig: Record<string, { label: string; color: string; bgColor: string }> = {
@@ -25,16 +25,11 @@ const tierConfig: Record<string, { label: string; color: string; bgColor: string
   basic: { label: 'C', color: 'text-emerald-400 border-emerald-400', bgColor: 'bg-emerald-400/10' },
 }
 
-const paramLabels: Record<keyof CoreParams, string> = {
-  communication: '\u30b3\u30df\u30e5\u529b',
-  specialist: '\u5c02\u9580\u30b9\u30ad\u30eb',
-  marketing: '\u30de\u30fc\u30b1\u529b',
-  ai: 'AI\u30b9\u30ad\u30eb',
-}
-
 export function DashboardPage() {
   const { user } = useAuth()
-  const { mode } = useMode()
+  const { track, basePath, isLove } = useTrack()
+  const jobs = useTrackJobs()
+  const trackConfig = useTrackConfig()
   const [diagnosis, setDiagnosis] = useState<DiagnosisRecord | null>(null)
   const [gamification, setGamification] = useState<GamificationState | null>(null)
   const [evolutionOptions, setEvolutionOptions] = useState<EvolutionOption[]>([])
@@ -45,8 +40,8 @@ export function DashboardPage() {
     if (!user) return
 
     Promise.all([
-      getLatestDiagnosis(user.id),
-      getGamificationState(user.id),
+      getLatestDiagnosis(user.id, track),
+      getGamificationState(user.id, track),
     ]).then(([diagRes, gamRes]) => {
       if (diagRes.data) setDiagnosis(diagRes.data)
       if (gamRes.data) {
@@ -56,13 +51,13 @@ export function DashboardPage() {
         const currentJobId = gamRes.data.current_job_id || diagRes.data?.primary_job_id
         if (currentJobId) {
           const levelInfo = getLevelFromExp(gamRes.data.total_exp)
-          const options = getEvolutionOptions(currentJobId, levelInfo.level)
+          const options = getEvolutionOptions(currentJobId, levelInfo.level, track)
           setEvolutionOptions(options)
         }
       }
       setLoading(false)
     })
-  }, [user])
+  }, [user, track])
 
   const handleEvolution = async (option: EvolutionOption) => {
     if (!user || !gamification) return
@@ -70,12 +65,12 @@ export function DashboardPage() {
     const currentJobId = gamification.current_job_id || diagnosis?.primary_job_id
     if (!currentJobId) return
 
-    await executeEvolution(user.id, currentJobId, option.job.id, 'level_up')
+    await executeEvolution(user.id, currentJobId, option.job.id, 'level_up', track)
 
     // Reload state
     const [diagRes, gamRes] = await Promise.all([
-      getLatestDiagnosis(user.id),
-      getGamificationState(user.id),
+      getLatestDiagnosis(user.id, track),
+      getGamificationState(user.id, track),
     ])
     if (diagRes.data) setDiagnosis(diagRes.data)
     if (gamRes.data) setGamification(gamRes.data)
@@ -98,16 +93,19 @@ export function DashboardPage() {
   const levelInfo = gamification ? getLevelFromExp(gamification.total_exp) : { level: 1, title: '\u898b\u7fd2\u3044', tier: 'basic' as const, progress: 0, expInLevel: 0, expForNext: 100, isMaxLevel: false }
 
   const currentJobId = gamification?.current_job_id || diagnosis?.primary_job_id
-  const job = currentJobId ? JOBS.find(j => j.id === currentJobId) : (diagnosis ? JOBS.find(j => j.id === diagnosis.primary_job_id) : null)
+  const job = currentJobId ? jobs.find(j => j.id === currentJobId) : (diagnosis ? jobs.find(j => j.id === diagnosis.primary_job_id) : null)
   const tier = job ? tierConfig[job.tier] || tierConfig.basic : null
+  const paramLabels = trackConfig.paramLabels
+  const accentClass = isLove ? 'text-fire' : 'text-gold'
+  const hoverBorderClass = isLove ? 'hover:border-fire' : 'hover:border-gold'
 
   return (
     <>
       {/* Header */}
       <PageHeader>
         <div>
-          <h1 className={`font-bold ${mode === 'romance' ? 'text-fire' : 'text-gold'}`}>
-            {mode === 'romance' ? 'ABILITY LOVE' : 'ABILITY JOB'}
+          <h1 className={`font-bold ${accentClass}`}>
+            {trackConfig.productName}
           </h1>
           <p className="text-text-secondary text-sm">{displayName}</p>
         </div>
@@ -158,7 +156,7 @@ export function DashboardPage() {
 
         {/* Job Card */}
         {diagnosis && job ? (
-          <Link to={`/jobs/${job.id}`} className="block">
+          <Link to={`${basePath}/jobs/${job.id}`} className="block">
             <div className="rpg-frame p-6">
               <div className="flex items-start gap-4">
                 <img
@@ -175,16 +173,16 @@ export function DashboardPage() {
                       </span>
                     )}
                   </div>
-                  <h2 className="text-2xl font-black text-gold text-glow">{job.name}</h2>
+                  <h2 className={`text-2xl font-black text-glow ${accentClass}`}>{job.name}</h2>
                   <p className="text-text-secondary text-sm mt-1">{job.mascot.name}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <div className="flex-1 bg-bg-secondary rounded-full h-2">
                       <div
-                        className="bg-gold rounded-full h-2 transition-all"
+                        className={`rounded-full h-2 transition-all ${isLove ? 'bg-fire' : 'bg-gold'}`}
                         style={{ width: `${diagnosis.match_score}%` }}
                       />
                     </div>
-                    <span className="text-gold text-sm font-bold">{diagnosis.match_score}%</span>
+                    <span className={`text-sm font-bold ${accentClass}`}>{diagnosis.match_score}%</span>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 text-text-secondary flex-shrink-0 mt-2" />
@@ -193,10 +191,10 @@ export function DashboardPage() {
           </Link>
         ) : (
           <div className="rpg-frame p-6 text-center">
-            <Sparkles className="w-12 h-12 text-gold mx-auto mb-3" />
-            <h2 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
+            <Sparkles className={`w-12 h-12 mx-auto mb-3 ${accentClass}`} />
+            <h2 className={`text-xl font-bold mb-2 ${accentClass}`}>{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
             <p className="text-text-secondary text-sm mb-4">{'\u3042\u306a\u305f\u306eRPG\u30b8\u30e7\u30d6\u3092\u898b\u3064\u3051\u307e\u3057\u3087\u3046'}</p>
-            <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
+            <Link to={`${basePath}/diagnosis`} className="rpg-button inline-block px-6 py-2">
               {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
             </Link>
           </div>
@@ -205,8 +203,8 @@ export function DashboardPage() {
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-3">
           <div className="rpg-frame p-4 text-center">
-            <Trophy className="w-6 h-6 text-gold mx-auto mb-1" />
-            <div className="text-2xl font-black text-gold">{levelInfo.level}</div>
+            <Trophy className={`w-6 h-6 mx-auto mb-1 ${accentClass}`} />
+            <div className={`text-2xl font-black ${accentClass}`}>{levelInfo.level}</div>
             <div className="text-text-secondary text-xs">{levelInfo.title}</div>
           </div>
           <div className="rpg-frame p-4 text-center">
@@ -227,13 +225,13 @@ export function DashboardPage() {
             <span className="text-text-secondary">
               Lv.{levelInfo.level} {levelInfo.title}
             </span>
-            <span className="text-gold">
+            <span className={accentClass}>
               {levelInfo.isMaxLevel ? 'MAX' : `${levelInfo.expInLevel} / ${levelInfo.expForNext} EXP`}
             </span>
           </div>
           <div className="bg-bg-secondary rounded-full h-3">
             <div
-              className="bg-gradient-to-r from-gold to-yellow-300 rounded-full h-3 transition-all duration-500"
+              className={`rounded-full h-3 transition-all duration-500 ${isLove ? 'bg-gradient-to-r from-fire to-pink-300' : 'bg-gradient-to-r from-gold to-yellow-300'}`}
               style={{ width: `${levelInfo.progress * 100}%` }}
             />
           </div>
@@ -244,77 +242,55 @@ export function DashboardPage() {
           )}
         </div>
 
-        {/* Quick Actions — mode-specific */}
-        {mode === 'business' ? (
-          <div className="grid grid-cols-3 gap-3">
-            <Link to="/diagnosis" className="rpg-frame p-4 text-center hover:border-gold transition-colors">
-              <RefreshCw className="w-7 h-7 text-gold mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Re-diagnose</span>
-            </Link>
-            <Link to="/analysis" className="rpg-frame p-4 text-center hover:border-gold transition-colors">
-              <Brain className="w-7 h-7 text-thunder mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">AI Analysis</span>
-            </Link>
-            <Link to="/share-card" className="rpg-frame p-4 text-center hover:border-gold transition-colors">
-              <Share2 className="w-7 h-7 text-blue-400 mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Share</span>
-            </Link>
-            <Link to="/journal" className="rpg-frame p-4 text-center hover:border-gold transition-colors">
-              <BookOpen className="w-7 h-7 text-emerald-400 mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Journal</span>
-            </Link>
-            <Link to="/growth" className="rpg-frame p-4 text-center hover:border-gold transition-colors">
-              <TrendingUp className="w-7 h-7 text-gold mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Growth</span>
-            </Link>
-            <Link to="/weekly-report" className="rpg-frame p-4 text-center hover:border-gold transition-colors">
-              <BarChart3 className="w-7 h-7 text-ice mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Weekly</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-3">
-            <Link to="/diagnosis" className="rpg-frame p-4 text-center hover:border-fire transition-colors">
-              <RefreshCw className="w-7 h-7 text-fire mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Re-diagnose</span>
-            </Link>
-            <Link to="/compatibility" className="rpg-frame p-4 text-center hover:border-fire transition-colors">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-3 gap-3">
+          <Link to={`${basePath}/diagnosis`} className={`rpg-frame p-4 text-center transition-colors ${hoverBorderClass}`}>
+            <RefreshCw className={`w-7 h-7 mx-auto mb-2 ${accentClass}`} />
+            <span className="text-foreground text-xs font-medium">Re-diagnose</span>
+          </Link>
+          <Link to={`${basePath}/analysis`} className={`rpg-frame p-4 text-center transition-colors ${hoverBorderClass}`}>
+            <Brain className={`w-7 h-7 mx-auto mb-2 ${isLove ? 'text-pink-400' : 'text-thunder'}`} />
+            <span className="text-foreground text-xs font-medium">AI Analysis</span>
+          </Link>
+          <Link to={`${basePath}/share-card`} className={`rpg-frame p-4 text-center transition-colors ${hoverBorderClass}`}>
+            <Share2 className="w-7 h-7 text-blue-400 mx-auto mb-2" />
+            <span className="text-foreground text-xs font-medium">Share</span>
+          </Link>
+          <Link to={`${basePath}/journal`} className={`rpg-frame p-4 text-center transition-colors ${hoverBorderClass}`}>
+            <BookOpen className="w-7 h-7 text-emerald-400 mx-auto mb-2" />
+            <span className="text-foreground text-xs font-medium">Journal</span>
+          </Link>
+          <Link to={`${basePath}/growth`} className={`rpg-frame p-4 text-center transition-colors ${hoverBorderClass}`}>
+            <TrendingUp className={`w-7 h-7 mx-auto mb-2 ${accentClass}`} />
+            <span className="text-foreground text-xs font-medium">Growth</span>
+          </Link>
+          {isLove ? (
+            <Link to={`${basePath}/compatibility`} className={`rpg-frame p-4 text-center transition-colors ${hoverBorderClass}`}>
               <Heart className="w-7 h-7 text-fire mx-auto mb-2" />
               <span className="text-foreground text-xs font-medium">Match</span>
             </Link>
-            <Link to="/romance-analysis" className="rpg-frame p-4 text-center hover:border-fire transition-colors">
-              <HeartHandshake className="w-7 h-7 text-pink-400 mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Love AI</span>
-            </Link>
-            <Link to="/journal" className="rpg-frame p-4 text-center hover:border-fire transition-colors">
-              <BookOpen className="w-7 h-7 text-emerald-400 mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Journal</span>
-            </Link>
-            <Link to="/share-card" className="rpg-frame p-4 text-center hover:border-fire transition-colors">
-              <Share2 className="w-7 h-7 text-blue-400 mx-auto mb-2" />
-              <span className="text-foreground text-xs font-medium">Share</span>
-            </Link>
-            <Link to="/weekly-report" className="rpg-frame p-4 text-center hover:border-fire transition-colors">
+          ) : (
+            <Link to={`${basePath}/weekly-report`} className={`rpg-frame p-4 text-center transition-colors ${hoverBorderClass}`}>
               <BarChart3 className="w-7 h-7 text-ice mx-auto mb-2" />
               <span className="text-foreground text-xs font-medium">Weekly</span>
             </Link>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Skill Params (if diagnosis exists) */}
         {diagnosis && (
           <div className="rpg-frame p-6">
-            <h3 className="text-gold font-bold text-center mb-4">{'\u30b9\u30ad\u30eb\u30d1\u30e9\u30e1\u30fc\u30bf'}</h3>
+            <h3 className={`font-bold text-center mb-4 ${accentClass}`}>{'\u30b9\u30ad\u30eb\u30d1\u30e9\u30e1\u30fc\u30bf'}</h3>
             <div className="space-y-3">
               {(Object.entries(diagnosis.core_params) as [keyof CoreParams, number][]).map(([key, value]) => (
                 <div key={key}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-text-secondary">{paramLabels[key] || key}</span>
-                    <span className="text-gold font-bold">{value}</span>
+                    <span className={`font-bold ${accentClass}`}>{value}</span>
                   </div>
                   <div className="bg-bg-secondary rounded-full h-2">
                     <div
-                      className="bg-gold rounded-full h-2 transition-all"
+                      className={`rounded-full h-2 transition-all ${isLove ? 'bg-fire' : 'bg-gold'}`}
                       style={{ width: `${value}%` }}
                     />
                   </div>

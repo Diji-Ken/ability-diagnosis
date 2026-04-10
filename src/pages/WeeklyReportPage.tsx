@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
 import { getGamificationState } from '@/lib/api/gamification'
 import type { GamificationState } from '@/lib/api/gamification'
 import { getRecentMoods } from '@/lib/api/journal'
@@ -11,6 +12,7 @@ import { BarChart3, Swords } from 'lucide-react'
 
 export function WeeklyReportPage() {
   const { user } = useAuth()
+  const { track } = useTrack()
   const [gamification, setGamification] = useState<GamificationState | null>(null)
   const [moods, setMoods] = useState<Array<{ date: string; mood: number | null }>>([])
   const [journalCount, setJournalCount] = useState(0)
@@ -23,7 +25,7 @@ export function WeeklyReportPage() {
 
     const loadData = async () => {
       const [gamRes, moodRes] = await Promise.all([
-        getGamificationState(user.id),
+        getGamificationState(user.id, track),
         getRecentMoods(user.id, 7),
       ])
 
@@ -55,7 +57,7 @@ export function WeeklyReportPage() {
     }
 
     loadData()
-  }, [user])
+  }, [user, track])
 
   if (loading) {
     return (
@@ -93,7 +95,7 @@ export function WeeklyReportPage() {
 
         {/* Mood Trend */}
         <div className="rpg-frame p-6">
-          <h2 className="text-gold font-bold mb-1">{'\u30e0\u30fc\u30c9\u30c8\u30ec\u30f3\u30c9'}</h2>
+          <h2 className="text-gold font-bold mb-1">{'\u6c17\u5206\u306e\u8a18\u9332'}</h2>
           <p className={`text-sm ${trendColor} font-medium mb-4`}>
             {'\u4eca\u9031\u306e\u50be\u5411: '}{moodTrend}
             {avgMood > 0 && ` (\u5e73\u5747: ${avgMood.toFixed(1)})`}

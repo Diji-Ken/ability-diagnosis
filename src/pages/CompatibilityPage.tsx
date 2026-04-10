@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
 import { getLatestDiagnosis } from '@/lib/api/diagnosis'
 import type { DiagnosisRecord } from '@/lib/api/diagnosis'
 import type { Group3 } from '@/types/diagnosis'
 import { calculateCompatibility, getCompatibilityLabel } from '@/lib/compatibility'
 import type { CompatibilityResult } from '@/lib/compatibility'
 import { ComparisonRadarChart } from '@/components/social/ComparisonRadarChart'
-import { JOBS } from '@/data/jobs'
-import { ANIMAL_CHARACTERS } from '@/data/animals'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Swords, Heart, Sparkles, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -15,24 +14,24 @@ import { supabase } from '@/lib/supabase'
 
 export function CompatibilityPage() {
   const { user } = useAuth()
+  const { track, basePath } = useTrack()
   const [myDiagnosis, setMyDiagnosis] = useState<DiagnosisRecord | null>(null)
   const [partnerDiagnosis, setPartnerDiagnosis] = useState<DiagnosisRecord | null>(null)
   const [result, setResult] = useState<CompatibilityResult | null>(null)
-  const [partnerEmail, setPartnerEmail] = useState('')
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user) return
-    getLatestDiagnosis(user.id).then(({ data }) => {
+    getLatestDiagnosis(user.id, track).then(({ data }) => {
       if (data) setMyDiagnosis(data)
       setLoading(false)
     })
-  }, [user])
+  }, [user, track])
 
   const handleSearch = async () => {
-    if (!partnerEmail.trim() || !myDiagnosis) return
+    if (!myDiagnosis) return
     setSearching(true)
     setSearchError(null)
     setPartnerDiagnosis(null)
@@ -51,6 +50,7 @@ export function CompatibilityPage() {
     }
 
     // Search through diagnosis results for public users
+    let found = false
     for (const profile of profiles) {
       if (profile.id === user?.id) continue
 
@@ -58,6 +58,7 @@ export function CompatibilityPage() {
         .from('diagnosis_results')
         .select('*')
         .eq('user_id', profile.id)
+        .eq('track', track)
         .eq('is_latest', true)
         .single()
 
@@ -80,11 +81,12 @@ export function CompatibilityPage() {
           }
         )
         setResult(compat)
+        found = true
         break
       }
     }
 
-    if (!partnerDiagnosis && !result) {
+    if (!found) {
       setSearchError('\u8a3a\u65ad\u7d50\u679c\u3092\u6301\u3064\u516c\u958b\u30e6\u30fc\u30b6\u30fc\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093')
     }
     setSearching(false)
@@ -104,15 +106,12 @@ export function CompatibilityPage() {
         <Sparkles className="w-12 h-12 text-gold mx-auto mb-3" />
         <h2 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
         <p className="text-text-secondary text-sm mb-4">{'\u76f8\u6027\u30c1\u30a7\u30c3\u30af\u306b\u306f\u8a3a\u65ad\u304c\u5fc5\u8981\u3067\u3059'}</p>
-        <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
+        <Link to={`${basePath}/diagnosis`} className="rpg-button inline-block px-6 py-2">
           {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
         </Link>
       </div>
     )
   }
-
-  const myJob = JOBS.find(j => j.id === myDiagnosis.primary_job_id)
-  const partnerJob = partnerDiagnosis ? JOBS.find(j => j.id === partnerDiagnosis.primary_job_id) : null
 
   return (
     <>

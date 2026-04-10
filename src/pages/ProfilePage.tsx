@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
+import { useTrackJobs, useTrackConfig } from '@/hooks/useTrackJobs'
 import { getLatestDiagnosis } from '@/lib/api/diagnosis'
 import type { DiagnosisRecord } from '@/lib/api/diagnosis'
 import { getGamificationState, getLevelFromExp } from '@/lib/api/gamification'
 import type { GamificationState } from '@/lib/api/gamification'
 import { getProfile } from '@/lib/api/profile'
 import type { UserProfile } from '@/lib/api/profile'
-import { JOBS } from '@/data/jobs'
 import type { CoreParams } from '@/types/diagnosis'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
@@ -22,15 +23,11 @@ const tierConfig: Record<string, { label: string; color: string }> = {
   basic: { label: 'C', color: 'text-emerald-400 border-emerald-400' },
 }
 
-const paramLabels: Record<keyof CoreParams, string> = {
-  communication: '\u30b3\u30df\u30e5\u529b',
-  specialist: '\u5c02\u9580\u30b9\u30ad\u30eb',
-  marketing: '\u30de\u30fc\u30b1\u529b',
-  ai: 'AI\u30b9\u30ad\u30eb',
-}
-
 export function ProfilePage() {
   const { user } = useAuth()
+  const { track, basePath } = useTrack()
+  const jobs = useTrackJobs()
+  const trackConfig = useTrackConfig()
   const [diagnosis, setDiagnosis] = useState<DiagnosisRecord | null>(null)
   const [gamification, setGamification] = useState<GamificationState | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
@@ -40,8 +37,8 @@ export function ProfilePage() {
     if (!user) return
 
     Promise.all([
-      getLatestDiagnosis(user.id),
-      getGamificationState(user.id),
+      getLatestDiagnosis(user.id, track),
+      getGamificationState(user.id, track),
       getProfile(user.id),
     ]).then(([diagRes, gamRes, profRes]) => {
       if (diagRes.data) setDiagnosis(diagRes.data)
@@ -49,7 +46,7 @@ export function ProfilePage() {
       if (profRes.data) setProfile(profRes.data)
       setLoading(false)
     })
-  }, [user])
+  }, [user, track])
 
   if (loading) {
     return (
@@ -72,8 +69,9 @@ export function ProfilePage() {
     ? getLevelFromExp(gamification.total_exp)
     : { level: 1, title: '\u898b\u7fd2\u3044', progress: 0, expInLevel: 0, expForNext: 100, isMaxLevel: false }
 
-  const job = diagnosis ? JOBS.find(j => j.id === diagnosis.primary_job_id) : null
+  const job = diagnosis ? jobs.find(j => j.id === diagnosis.primary_job_id) : null
   const tier = job ? tierConfig[job.tier] || tierConfig.basic : null
+  const paramLabels = trackConfig.paramLabels
 
   return (
     <>
@@ -81,7 +79,7 @@ export function ProfilePage() {
       <PageHeader>
         <div className="flex items-center justify-between">
           <h1 className="text-gold font-bold text-xl">{'\u30de\u30a4\u30da\u30fc\u30b8'}</h1>
-          <Link to="/settings" className="text-text-secondary hover:text-gold transition-colors">
+          <Link to={`${basePath}/settings`} className="text-text-secondary hover:text-gold transition-colors">
             <Settings className="w-5 h-5" />
           </Link>
         </div>
@@ -112,7 +110,7 @@ export function ProfilePage() {
 
         {/* Job Card */}
         {diagnosis && job ? (
-          <Link to={`/jobs/${job.id}`} className="block">
+          <Link to={`${basePath}/jobs/${job.id}`} className="block">
             <div className="rpg-frame p-6">
               <div className="flex items-start gap-4">
                 <img
@@ -152,7 +150,7 @@ export function ProfilePage() {
             <Swords className="w-12 h-12 text-gold mx-auto mb-3" />
             <h3 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h3>
             <p className="text-text-secondary text-sm mb-4">{'\u3042\u306a\u305f\u306eRPG\u30b8\u30e7\u30d6\u3092\u898b\u3064\u3051\u307e\u3057\u3087\u3046'}</p>
-            <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
+            <Link to={`${basePath}/diagnosis`} className="rpg-button inline-block px-6 py-2">
               {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
             </Link>
           </div>
@@ -208,7 +206,7 @@ export function ProfilePage() {
 
         {/* Quick Links */}
         <div className="space-y-3">
-          <Link to="/settings" className="block">
+          <Link to={`${basePath}/settings`} className="block">
             <div className="rpg-frame p-4 flex items-center justify-between hover:border-gold transition-colors">
               <div className="flex items-center gap-3">
                 <Settings className="w-5 h-5 text-gold" />
@@ -217,7 +215,7 @@ export function ProfilePage() {
               <ArrowRight className="w-4 h-4 text-text-secondary" />
             </div>
           </Link>
-          <Link to="/history" className="block">
+          <Link to={`${basePath}/history`} className="block">
             <div className="rpg-frame p-4 flex items-center justify-between hover:border-gold transition-colors">
               <div className="flex items-center gap-3">
                 <History className="w-5 h-5 text-green-400" />
@@ -226,7 +224,7 @@ export function ProfilePage() {
               <ArrowRight className="w-4 h-4 text-text-secondary" />
             </div>
           </Link>
-          <Link to="/growth" className="block">
+          <Link to={`${basePath}/growth`} className="block">
             <div className="rpg-frame p-4 flex items-center justify-between hover:border-gold transition-colors">
               <div className="flex items-center gap-3">
                 <TrendingUp className="w-5 h-5 text-blue-400" />

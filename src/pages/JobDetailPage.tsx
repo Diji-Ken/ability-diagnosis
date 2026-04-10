@@ -1,19 +1,23 @@
 import { useParams, Link } from "react-router-dom";
-import { JOBS, JOB_TIER_LABELS } from "@/data/jobs";
+import { JOB_TIER_LABELS } from "@/data/jobs";
+import { useTrack } from "@/providers/TrackProvider";
+import { useTrackJobs } from "@/hooks/useTrackJobs";
 import { BackButton } from "@/components/ui/BackButton";
 import { Swords, Star, TrendingUp, ChevronRight } from "lucide-react";
 
 export function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const job = JOBS.find((j) => j.id === id);
+  const { basePath } = useTrack();
+  const jobs = useTrackJobs();
+  const job = jobs.find((j) => j.id === id);
 
   if (!job) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center">
         <div className="text-center">
           <p className="text-text-secondary mb-4">ジョブが見つかりませんでした</p>
-          <Link to="/" className="text-gold hover:underline">
-            トップへ戻る
+          <Link to={`${basePath}/dashboard`} className="text-gold hover:underline">
+            ダッシュボードへ戻る
           </Link>
         </div>
       </div>
@@ -21,7 +25,7 @@ export function JobDetailPage() {
   }
 
   const advancedJobs = job.advancedJobs
-    .map((ajId) => JOBS.find((j) => j.id === ajId))
+    .map((ajId) => jobs.find((j) => j.id === ajId))
     .filter(Boolean);
 
   return (
@@ -114,7 +118,7 @@ export function JobDetailPage() {
               return (
                 <Link
                   key={advJob.id}
-                  to={`/jobs/${advJob.id}`}
+                  to={`${basePath}/jobs/${advJob.id}`}
                   className="block bg-bg-secondary rounded-lg p-3 mb-2 last:mb-0 group hover:border-gold/30 border border-transparent transition-all"
                 >
                   <div className="flex items-center gap-3">
@@ -143,13 +147,13 @@ export function JobDetailPage() {
           </div>
         )}
 
-        {/* Back to diagnosis */}
+        {/* Back to dashboard */}
         <div className="text-center mt-8">
           <Link
-            to="/diagnosis"
+            to={`${basePath}/dashboard`}
             className="text-gold text-sm hover:underline"
           >
-            診断に戻る
+            ダッシュボードへ戻る
           </Link>
         </div>
       </div>

@@ -1,10 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import type {
   DiagnosisState,
-  AnimalResult,
-  NumerologyResult,
-  CoreParams,
-  JobMatchResult,
+  Track,
+  Job,
+  SkillCategory,
 } from "@/types/diagnosis";
 import {
   getAnimalResult,
@@ -13,7 +12,11 @@ import {
   matchJob,
 } from "@/lib/diagnosis";
 
-const STORAGE_KEY = "diagnosis-state";
+interface UseDiagnosisOptions {
+  track: Track;
+  jobs: Job[];
+  categories: SkillCategory[];
+}
 
 const initialState: DiagnosisState = {
   currentStep: 1,
@@ -26,30 +29,34 @@ const initialState: DiagnosisState = {
   jobResult: null,
 };
 
-function loadState(): DiagnosisState {
+function storageKey(track: Track): string {
+  return `diagnosis-state-${track}`;
+}
+
+function loadState(track: Track): DiagnosisState {
   if (typeof window === "undefined") return initialState;
   try {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
+    const saved = sessionStorage.getItem(storageKey(track));
     if (saved) return JSON.parse(saved);
   } catch {}
   return initialState;
 }
 
-export function useDiagnosis() {
+export function useDiagnosis({ track, jobs, categories }: UseDiagnosisOptions) {
   const [state, setState] = useState<DiagnosisState>(initialState);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setState(loadState());
+    setState(loadState(track));
     setHydrated(true);
-  }, []);
+  }, [track]);
 
   useEffect(() => {
     if (!hydrated) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      sessionStorage.setItem(storageKey(track), JSON.stringify(state));
     } catch {}
-  }, [state, hydrated]);
+  }, [state, hydrated, track]);
 
   const submitBirthday = useCallback(
     (year: number, month: number, day: number) => {
@@ -63,7 +70,7 @@ export function useDiagnosis() {
         numerologyResult,
       }));
     },
-    []
+    [],
   );
 
   const goToStep2 = useCallback(() => {
@@ -88,13 +95,15 @@ export function useDiagnosis() {
       const coreParams = calculateCoreParams(
         prev.skillAnswers,
         prev.animalResult,
-        prev.numerologyResult
+        prev.numerologyResult,
+        categories,
       );
 
       const jobResult = matchJob(
         coreParams,
         prev.animalResult,
-        prev.numerologyResult
+        prev.numerologyResult,
+        jobs,
       );
 
       return {
@@ -104,14 +113,32 @@ export function useDiagnosis() {
         jobResult,
       };
     });
-  }, []);
+  }, [jobs, categories]);
 
   const reset = useCallback(() => {
     setState(initialState);
     try {
-      sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(storageKey(track));
     } catch {}
-  }, []);
+  }, [track]);
+
+  // Prefill from entry diagnosis data (birthday + animal + numerology)
+  const prefillFromEntry = useCallback(
+    (data: {
+      birthday: { year: number; month: number; day: number };
+      animalResult: DiagnosisState["animalResult"];
+      numerologyResult: DiagnosisState["numerologyResult"];
+    }) => {
+      setState((prev) => ({
+        ...prev,
+        birthday: data.birthday,
+        animalResult: data.animalResult,
+        numerologyResult: data.numerologyResult,
+        currentStep: 2,
+      }));
+    },
+    [],
+  );
 
   return {
     state,
@@ -121,5 +148,6 @@ export function useDiagnosis() {
     setSkillAnswer,
     submitSkills,
     reset,
+    prefillFromEntry,
   };
 }

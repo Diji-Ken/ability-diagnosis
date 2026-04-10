@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
+import { useTrackJobs } from '@/hooks/useTrackJobs'
 import { getLatestDiagnosis } from '@/lib/api/diagnosis'
 import type { DiagnosisRecord } from '@/lib/api/diagnosis'
-import { JOBS } from '@/data/jobs'
 import { ShareCardCanvas } from '@/components/social/ShareCardCanvas'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Download, Share2, Swords, Sparkles } from 'lucide-react'
@@ -10,17 +11,19 @@ import { Link } from 'react-router-dom'
 
 export function ShareCardPage() {
   const { user } = useAuth()
+  const { track, basePath } = useTrack()
+  const jobs = useTrackJobs()
   const [diagnosis, setDiagnosis] = useState<DiagnosisRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [cardDataUrl, setCardDataUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
-    getLatestDiagnosis(user.id).then(({ data }) => {
+    getLatestDiagnosis(user.id, track).then(({ data }) => {
       if (data) setDiagnosis(data)
       setLoading(false)
     })
-  }, [user])
+  }, [user, track])
 
   const handleDownload = () => {
     if (!cardDataUrl) return
@@ -63,14 +66,14 @@ export function ShareCardPage() {
         <Sparkles className="w-12 h-12 text-gold mx-auto mb-3" />
         <h2 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
         <p className="text-text-secondary text-sm mb-4">{'\u8a3a\u65ad\u3092\u5b8c\u4e86\u3059\u308b\u3068\u30b7\u30a7\u30a2\u30ab\u30fc\u30c9\u3092\u4f5c\u6210\u3067\u304d\u307e\u3059'}</p>
-        <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
+        <Link to={`${basePath}/diagnosis`} className="rpg-button inline-block px-6 py-2">
           {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
         </Link>
       </div>
     )
   }
 
-  const job = JOBS.find(j => j.id === diagnosis.primary_job_id)
+  const job = jobs.find(j => j.id === diagnosis.primary_job_id)
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || '\u5192\u967a\u8005'
 
   return (

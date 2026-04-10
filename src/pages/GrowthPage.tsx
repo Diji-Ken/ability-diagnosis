@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { TrendingUp, Loader2, ChevronRight, Zap } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
+import { useTrackJobs } from '@/hooks/useTrackJobs'
 import { getGamificationState, getLevelFromExp, LEVEL_THRESHOLDS, MILESTONE_LEVELS, TIER_LEVEL_REQUIREMENTS } from '@/lib/api/gamification'
 import { getDiagnosisHistory } from '@/lib/api/diagnosis'
 import { getUserBadges } from '@/lib/api/badges'
 import { getEvolutionHistory } from '@/lib/api/evolution'
 import { SkillTrendChart } from '@/components/growth/SkillTrendChart'
 import { BadgeGallery } from '@/components/gamification/BadgeGallery'
-import { JOBS } from '@/data/jobs'
 import { PageHeader } from '@/components/layout/PageHeader'
 import type { GamificationState } from '@/lib/api/gamification'
 import type { UserBadge } from '@/lib/api/badges'
@@ -38,6 +39,8 @@ interface EvolutionRecord {
 
 export function GrowthPage() {
   const { user } = useAuth()
+  const { track } = useTrack()
+  const jobs = useTrackJobs()
   const [loading, setLoading] = useState(true)
   const [gamification, setGamification] = useState<GamificationState | null>(null)
   const [skillHistory, setSkillHistory] = useState<Array<{ date: string; params: CoreParams }>>([])
@@ -52,10 +55,10 @@ export function GrowthPage() {
       setLoading(true)
       try {
         const [gamRes, diagRes, badgeRes, evoRes] = await Promise.all([
-          getGamificationState(user!.id),
-          getDiagnosisHistory(user!.id),
-          getUserBadges(user!.id),
-          getEvolutionHistory(user!.id),
+          getGamificationState(user!.id, track),
+          getDiagnosisHistory(user!.id, track),
+          getUserBadges(user!.id, track),
+          getEvolutionHistory(user!.id, track),
         ])
 
         if (gamRes.data) setGamification(gamRes.data)
@@ -87,7 +90,7 @@ export function GrowthPage() {
     }
 
     loadData()
-  }, [user])
+  }, [user, track])
 
   if (loading) {
     return (
@@ -190,8 +193,8 @@ export function GrowthPage() {
             </div>
             <div className="space-y-3">
               {evolutions.map((evo) => {
-                const fromJob = JOBS.find(j => j.id === evo.from_job_id)
-                const toJob = JOBS.find(j => j.id === evo.to_job_id)
+                const fromJob = jobs.find(j => j.id === evo.from_job_id)
+                const toJob = jobs.find(j => j.id === evo.to_job_id)
                 return (
                   <div key={evo.id} className="flex items-center gap-3 p-3 bg-bg-secondary/50 rounded-lg">
                     <div className="flex-1">

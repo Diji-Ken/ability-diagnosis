@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
+import { useTrackJobs } from '@/hooks/useTrackJobs'
 import { getLatestDiagnosis } from '@/lib/api/diagnosis'
 import type { DiagnosisRecord } from '@/lib/api/diagnosis'
-import { JOBS } from '@/data/jobs'
 import { ANIMAL_CHARACTERS } from '@/data/animals'
 import { generateAnalysis } from '@/lib/ai-analysis'
 import type { AnalysisResult } from '@/lib/ai-analysis'
@@ -15,23 +16,25 @@ import {
 
 export function AnalysisPage() {
   const { user } = useAuth()
+  const { track, basePath } = useTrack()
+  const jobs = useTrackJobs()
   const [diagnosis, setDiagnosis] = useState<DiagnosisRecord | null>(null)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user) return
-    getLatestDiagnosis(user.id).then(({ data }) => {
+    getLatestDiagnosis(user.id, track).then(({ data }) => {
       if (data) {
         setDiagnosis(data)
         const animal = ANIMAL_CHARACTERS.find(a => a.number === data.animal_number)
-        const job = JOBS.find(j => j.id === data.primary_job_id)
+        const job = jobs.find(j => j.id === data.primary_job_id)
         const result = generateAnalysis(animal, job, data.core_params, data.life_path_name)
         setAnalysis(result)
       }
       setLoading(false)
     })
-  }, [user])
+  }, [user, track, jobs])
 
   if (loading) {
     return (
@@ -47,7 +50,7 @@ export function AnalysisPage() {
         <Sparkles className="w-12 h-12 text-gold mx-auto mb-3" />
         <h2 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
         <p className="text-text-secondary text-sm mb-4">{`AI\u5206\u6790\u306b\u306f\u8a3a\u65ad\u7d50\u679c\u304c\u5fc5\u8981\u3067\u3059`}</p>
-        <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
+        <Link to={`${basePath}/diagnosis`} className="rpg-button inline-block px-6 py-2">
           {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
         </Link>
       </div>

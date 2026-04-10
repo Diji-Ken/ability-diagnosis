@@ -1,8 +1,10 @@
 import { supabase } from '@/lib/supabase'
+import type { Track } from '@/types/diagnosis'
 
 export interface GamificationState {
   id: string
   user_id: string
+  track: Track
   level: number
   current_exp: number
   total_exp: number
@@ -70,7 +72,6 @@ function getLevelTitle(level: number): string {
 
 // Generate 100-level EXP curve
 // Formula: cumulative(L) = round((L-1)^2.4 * 0.55)
-// Lv.20=609, Lv.50=5530, Lv.80=17403, Lv.100=30050
 export interface LevelThreshold {
   level: number
   exp: number
@@ -94,7 +95,6 @@ function generateLevelThresholds(): LevelThreshold[] {
 
 export const LEVEL_THRESHOLDS = generateLevelThresholds()
 
-// Milestone levels for UI display (roadmap)
 export const MILESTONE_LEVELS = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
 
 export function getLevelFromExp(totalExp: number) {
@@ -132,7 +132,7 @@ export const EXP_REWARDS = {
   evolution_achieved: 1000,
 } as const
 
-// Points = engagement rewards (login gives points)
+// Points = engagement rewards
 export const POINT_REWARDS = {
   daily_login: 10,
   login_streak_3: 20,
@@ -145,30 +145,41 @@ export const POINT_REWARDS = {
   evolution_achieved: 200,
 } as const
 
-export async function getGamificationState(userId: string) {
+export async function getGamificationState(userId: string, track: Track = 'job') {
   const { data, error } = await supabase
     .from('user_gamification')
     .select('*')
     .eq('user_id', userId)
+    .eq('track', track)
     .single()
 
   return { data: data as GamificationState | null, error }
 }
 
-export async function recordActivity(userId: string, activityType: string, points: number = 0, exp: number = 0, metadata?: Record<string, unknown>) {
+export async function recordActivity(
+  userId: string,
+  activityType: string,
+  points: number = 0,
+  exp: number = 0,
+  metadata?: Record<string, unknown>,
+  track: Track = 'job',
+) {
   const { error } = await supabase.rpc('record_activity', {
     p_user_id: userId,
     p_activity_type: activityType,
     p_points: points,
     p_exp: exp,
     p_metadata: metadata ?? null,
+    p_track: track,
   })
   return { error }
 }
 
-// Login streak: awards POINTS only (no EXP - logging in is not skill growth)
+// Login streak: awards POINTS only (shared across tracks — login is global)
+// Writes to BOTH track rows so login counts everywhere
 export async function updateStreak(userId: string) {
-  const { data: state } = await getGamificationState(userId)
+  // Use 'job' row as canonical streak record (it's global, but we need a row to update)
+  const { data: state } = await getGamificationState(userId, 'job')
   if (!state) return
 
   const today = new Date().toISOString().split('T')[0]
@@ -180,6 +191,7 @@ export async function updateStreak(userId: string) {
   const newStreak = lastActive === yesterday ? state.current_streak + 1 : 1
   const longestStreak = Math.max(newStreak, state.longest_streak)
 
+  // Update BOTH track rows so streak shows in both dashboards
   await supabase
     .from('user_gamification')
     .update({
@@ -190,18 +202,18 @@ export async function updateStreak(userId: string) {
     })
     .eq('user_id', userId)
 
-  // Points only (EXP = 0)
+  // Points only (EXP = 0) — credit to 'job' track as canonical
   let bonusPoints = POINT_REWARDS.daily_login
   if (newStreak === 3) bonusPoints += POINT_REWARDS.login_streak_3
   if (newStreak === 7) bonusPoints += POINT_REWARDS.login_streak_7
   if (newStreak === 30) bonusPoints += POINT_REWARDS.login_streak_30
 
-  await recordActivity(userId, 'daily_login', bonusPoints, 0, { streak: newStreak })
+  await recordActivity(userId, 'daily_login', bonusPoints, 0, { streak: newStreak }, 'job')
 }
 
 // Journal streak: awards BOTH EXP + Points (affirmation = growth)
-export async function updateJournalStreak(userId: string) {
-  const { data: state } = await getGamificationState(userId)
+export async function updateJournalStreak(userId: string, track: Track = 'job') {
+  const { data: state } = await getGamificationState(userId, track)
   if (!state) return { journalStreak: 0, alreadyRecorded: true }
 
   const today = new Date().toISOString().split('T')[0]
@@ -224,6 +236,7 @@ export async function updateJournalStreak(userId: string) {
       updated_at: new Date().toISOString(),
     })
     .eq('user_id', userId)
+    .eq('track', track)
 
   let exp = EXP_REWARDS.journal_entry
   let points = POINT_REWARDS.journal_entry
@@ -231,9 +244,14 @@ export async function updateJournalStreak(userId: string) {
   if (newStreak === 3) exp += EXP_REWARDS.journal_streak_3
   if (newStreak === 7) exp += EXP_REWARDS.journal_streak_7
 
-  await recordActivity(userId, 'journal_entry', points, exp, {
-    journal_streak: newStreak,
-  })
+  await recordActivity(
+    userId,
+    'journal_entry',
+    points,
+    exp,
+    { journal_streak: newStreak },
+    track,
+  )
 
   return { journalStreak: newStreak, alreadyRecorded: false, exp, points }
 }

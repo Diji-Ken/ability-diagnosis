@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/providers/AuthProvider'
+import { useTrack } from '@/providers/TrackProvider'
+import { useTrackJobs } from '@/hooks/useTrackJobs'
 import { getDiagnosisHistory } from '@/lib/api/diagnosis'
 import type { DiagnosisRecord } from '@/lib/api/diagnosis'
-import { JOBS } from '@/data/jobs'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Swords, Sparkles, ArrowRight, Clock } from 'lucide-react'
 
@@ -24,17 +25,19 @@ function formatDate(dateStr: string): string {
 
 export function HistoryPage() {
   const { user } = useAuth()
+  const { track, basePath } = useTrack()
+  const jobs = useTrackJobs()
   const [history, setHistory] = useState<DiagnosisRecord[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user) return
 
-    getDiagnosisHistory(user.id).then(({ data }) => {
+    getDiagnosisHistory(user.id, track).then(({ data }) => {
       if (data) setHistory(data)
       setLoading(false)
     })
-  }, [user])
+  }, [user, track])
 
   if (loading) {
     return (
@@ -63,17 +66,17 @@ export function HistoryPage() {
             <Sparkles className="w-12 h-12 text-gold mx-auto mb-3" />
             <h2 className="text-xl font-bold text-gold mb-2">{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
             <p className="text-text-secondary text-sm mb-4">{'\u3042\u306a\u305f\u306eRPG\u30b8\u30e7\u30d6\u3092\u898b\u3064\u3051\u307e\u3057\u3087\u3046'}</p>
-            <Link to="/diagnosis" className="rpg-button inline-block px-6 py-2">
+            <Link to={`${basePath}/diagnosis`} className="rpg-button inline-block px-6 py-2">
               {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
             </Link>
           </div>
         ) : (
           history.map((record) => {
-            const job = JOBS.find(j => j.id === record.primary_job_id)
+            const job = jobs.find(j => j.id === record.primary_job_id)
             const tier = job ? tierConfig[job.tier] || tierConfig.basic : null
 
             return (
-              <Link key={record.id} to={`/jobs/${record.primary_job_id}`} className="block">
+              <Link key={record.id} to={`${basePath}/jobs/${record.primary_job_id}`} className="block">
                 <div className="rpg-frame p-4 hover:border-gold transition-colors">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-text-secondary text-sm">{formatDate(record.created_at)}</span>

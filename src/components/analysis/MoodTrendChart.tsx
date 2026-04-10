@@ -26,7 +26,7 @@ export function MoodTrendChart({ data }: MoodTrendChartProps) {
   if (chartData.length < 2) {
     return (
       <div className="text-center py-8 text-text-secondary text-sm">
-        ムードデータが不足しています（2日分以上必要）
+        記録が不足しています（2日分以上必要）
       </div>
     )
   }
@@ -55,7 +55,7 @@ export function MoodTrendChart({ data }: MoodTrendChartProps) {
             color: '#e8e0d0',
             fontSize: 12,
           }}
-          formatter={(value) => [moodLabels[value as number] || value, 'ムード']}
+          formatter={(value) => [moodLabels[value as number] || value, '気分']}
         />
         <Line
           type="monotone"

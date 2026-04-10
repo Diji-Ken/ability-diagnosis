@@ -1,45 +1,55 @@
 import { supabase } from '@/lib/supabase'
 import { BADGES } from '@/data/badges'
 import type { BadgeDefinition } from '@/data/badges'
+import type { Track } from '@/types/diagnosis'
 
 export interface UserBadge {
   id: string
   user_id: string
+  track: Track
   badge_id: string
   earned_at: string
 }
 
-export async function getUserBadges(userId: string) {
+export async function getUserBadges(userId: string, track: Track = 'job') {
   const { data, error } = await supabase
     .from('user_badges')
     .select('*')
     .eq('user_id', userId)
+    .eq('track', track)
     .order('earned_at', { ascending: false })
 
   return { data: data as UserBadge[] | null, error }
 }
 
-export async function awardBadge(userId: string, badgeId: string) {
+export async function awardBadge(userId: string, badgeId: string, track: Track = 'job') {
   const { data, error } = await supabase
     .from('user_badges')
-    .upsert({ user_id: userId, badge_id: badgeId }, { onConflict: 'user_id,badge_id' })
+    .upsert(
+      { user_id: userId, badge_id: badgeId, track },
+      { onConflict: 'user_id,track,badge_id' },
+    )
     .select()
     .single()
 
   return { data: data as UserBadge | null, error }
 }
 
-export async function checkAndAwardBadges(userId: string, stats: {
-  diagnosisCount: number
-  longestStreak: number
-  level: number
-  journalCount: number
-  journalStreak: number
-  points: number
-  shareCount: number
-  evolutionCount: number
-}) {
-  const { data: existing } = await getUserBadges(userId)
+export async function checkAndAwardBadges(
+  userId: string,
+  stats: {
+    diagnosisCount: number
+    longestStreak: number
+    level: number
+    journalCount: number
+    journalStreak: number
+    points: number
+    shareCount: number
+    evolutionCount: number
+  },
+  track: Track = 'job',
+) {
+  const { data: existing } = await getUserBadges(userId, track)
   const earnedIds = new Set(existing?.map(b => b.badge_id) || [])
   const newBadges: BadgeDefinition[] = []
 
@@ -67,7 +77,7 @@ export async function checkAndAwardBadges(userId: string, stats: {
     }
 
     if (earned) {
-      await awardBadge(userId, badge.id)
+      await awardBadge(userId, badge.id, track)
       newBadges.push(badge)
     }
   }

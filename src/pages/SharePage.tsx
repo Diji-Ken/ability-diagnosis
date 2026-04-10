@@ -1,15 +1,14 @@
 import { useParams, Link } from "react-router-dom";
 import { decodeShareData } from "@/lib/share";
-import { JOBS } from "@/data/jobs";
-import { getAnimalResult } from "@/lib/diagnosis";
+import { getTrackConfig } from "@/config/trackConfig";
 import { ANIMAL_CHARACTERS } from "@/data/animals";
 import { RadarChart } from "@/components/chart/RadarChart";
 import { Swords, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import type { CoreParams } from "@/types/diagnosis";
+import type { CoreParams, Track } from "@/types/diagnosis";
 
 export function SharePage() {
-  const { id } = useParams<{ id: string }>();
+  const { track, id } = useParams<{ track: string; id: string }>();
 
   if (!id) {
     return (
@@ -19,6 +18,8 @@ export function SharePage() {
     );
   }
 
+  const trackKey: Track = track === 'love' ? 'love' : 'job';
+  const trackConfig = getTrackConfig(trackKey);
   const shareData = decodeShareData(id);
 
   if (!shareData) {
@@ -34,7 +35,7 @@ export function SharePage() {
     );
   }
 
-  const job = JOBS.find((j) => j.id === shareData.j);
+  const job = trackConfig.jobs.find((j) => j.id === shareData.j);
   const animalChar = ANIMAL_CHARACTERS.find((a) => a.number === shareData.a);
   const coreParams: CoreParams = {
     communication: shareData.p[0],

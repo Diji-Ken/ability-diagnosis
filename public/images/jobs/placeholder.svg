@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="#1a1f36" rx="16"/>
+  <circle cx="100" cy="80" r="35" fill="none" stroke="#ffd700" stroke-width="2" opacity="0.3"/>
+  <path d="M85 70 L100 55 L115 70 L100 85 Z" fill="#ffd700" opacity="0.2"/>
+  <path d="M70 120 L100 100 L130 120 L120 150 L80 150 Z" fill="none" stroke="#ffd700" stroke-width="2" opacity="0.3"/>
+  <text x="100" y="180" text-anchor="middle" fill="#8b7355" font-size="12" font-family="sans-serif">JOB</text>
+</svg>

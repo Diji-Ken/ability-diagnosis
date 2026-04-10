@@ -4,6 +4,16 @@
    RPG Theme - Custom CSS Variables & Theme
    ======================================== */
 
+/* Track theme classes (set on JobLayout / LoveLayout root) */
+.theme-job {
+  --accent: #ffd700;
+  --accent-glow: rgba(255, 215, 0, 0.4);
+}
+.theme-love {
+  --accent: #ff6b35;
+  --accent-glow: rgba(255, 107, 53, 0.4);
+}
+
 @theme {
   /* RPG Color Palette */
   --color-gold: #ffd700;

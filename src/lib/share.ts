@@ -1,12 +1,10 @@
-import type { ShareData, CoreParams } from "@/types/diagnosis";
-import { JOBS } from "@/data/jobs";
+import type { ShareData, Track } from "@/types/diagnosis";
 
 /**
  * 診断結果をShareDataにエンコード
  */
 export function encodeShareData(data: ShareData): string {
   const json = JSON.stringify(data);
-  // Base64URLエンコード
   const base64 = btoa(unescape(encodeURIComponent(json)));
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
@@ -28,19 +26,27 @@ export function decodeShareData(encoded: string): ShareData | null {
 /**
  * シェア用テキストを生成
  */
-export function generateShareText(jobName: string, matchScore: number): string {
-  return `私のジョブは「${jobName}」でした！（マッチ度${matchScore}%）\nあなたのジョブは？\n\n#アビリティジョブ診断`;
+export function generateShareText(
+  jobName: string,
+  matchScore: number,
+  track: Track = "job",
+): string {
+  const productTag = track === "love" ? "#アビリティラブ診断" : "#アビリティジョブ診断";
+  const prefix = track === "love" ? "私の恋愛ジョブは" : "私のジョブは";
+  const suffix = track === "love" ? "あなたの恋愛ジョブは？" : "あなたのジョブは？";
+  return `${prefix}「${jobName}」でした！（マッチ度${matchScore}%）\n${suffix}\n\n${productTag}`;
 }
 
 /**
- * シェア用URLを生成
+ * シェア用URLを生成（track-scoped）
  */
 export function generateShareUrl(
   baseUrl: string,
-  shareData: ShareData
+  shareData: ShareData,
+  track: Track = "job",
 ): string {
   const encoded = encodeShareData(shareData);
-  return `${baseUrl}/share/${encoded}`;
+  return `${baseUrl}/share/${track}/${encoded}`;
 }
 
 /**
@@ -55,6 +61,7 @@ export function getTwitterShareUrl(text: string, url: string): string {
  * LINEシェアURL
  */
 export function getLineShareUrl(text: string, url: string): string {
-  const message = `${text}\n${url}`;
-  return `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+  return `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
+    url,
+  )}&text=${encodeURIComponent(text)}`;
 }

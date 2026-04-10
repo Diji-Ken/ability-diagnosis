@@ -1,10 +1,9 @@
-import type { JobMatchResult, ShareData } from "@/types/diagnosis";
+import type { JobMatchResult, ShareData, Track } from "@/types/diagnosis";
 import {
   generateShareText,
   generateShareUrl,
   getTwitterShareUrl,
   getLineShareUrl,
-  encodeShareData,
 } from "@/lib/share";
 import { Share2, Copy, Check } from "lucide-react";
 import { useState } from "react";
@@ -13,12 +12,14 @@ interface ShareButtonsProps {
   jobResult: JobMatchResult;
   animalNumber: number;
   lifePathNumber: number;
+  track: Track;
 }
 
 export function ShareButtons({
   jobResult,
   animalNumber,
   lifePathNumber,
+  track,
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
@@ -35,13 +36,16 @@ export function ShareButtons({
     n: lifePathNumber,
   };
 
-  const baseUrl =
-    typeof window !== "undefined" ? window.location.origin : "";
-  const shareUrl = generateShareUrl(baseUrl, shareData);
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const shareUrl = generateShareUrl(baseUrl, shareData, track);
   const shareText = generateShareText(
     jobResult.primaryJob.name,
-    jobResult.matchScore
+    jobResult.matchScore,
+    track,
   );
+
+  const isLove = track === "love";
+  const accentText = isLove ? "text-fire" : "text-gold";
 
   const handleCopy = async () => {
     try {
@@ -55,7 +59,7 @@ export function ShareButtons({
 
   return (
     <div className="rpg-frame rounded-lg p-4">
-      <h3 className="text-gold font-bold mb-3 flex items-center gap-2">
+      <h3 className={`${accentText} font-bold mb-3 flex items-center gap-2`}>
         <Share2 className="w-5 h-5" />
         結果をシェアする
       </h3>

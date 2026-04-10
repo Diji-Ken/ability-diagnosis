@@ -1,13 +1,24 @@
-import type { CoreParams, SubParams, AnimalResult, NumerologyResult } from "@/types/diagnosis";
-import { SKILL_CATEGORIES } from "@/data/skills";
+import type {
+  CoreParams,
+  SubParams,
+  AnimalResult,
+  NumerologyResult,
+  SkillCategory,
+} from "@/types/diagnosis";
 
 /**
  * スキル棚卸しの回答からコアパラメータ4軸を算出
+ *
+ * @param answers 質問IDと回答値のマップ
+ * @param animalResult 動物結果（補正値取得）
+ * @param numerologyResult 数秘結果（補正値取得）
+ * @param categories 質問カテゴリ配列（track別）
  */
 export function calculateCoreParams(
   answers: Record<string, number>,
   animalResult: AnimalResult,
-  numerologyResult: NumerologyResult
+  numerologyResult: NumerologyResult,
+  categories: SkillCategory[],
 ): CoreParams {
   // 各軸の回答スコアを集計
   const rawScores: CoreParams = {
@@ -23,7 +34,7 @@ export function calculateCoreParams(
     ai: 0,
   };
 
-  for (const category of SKILL_CATEGORIES) {
+  for (const category of categories) {
     for (const question of category.questions) {
       const axis = question.axis;
       const answer = answers[question.id] ?? 0;

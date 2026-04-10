@@ -1,8 +1,8 @@
 import { supabase } from '@/lib/supabase'
-import { JOBS } from '@/data/jobs'
+import { getTrackConfig } from '@/config/trackConfig'
 import { TIER_LEVEL_REQUIREMENTS, EXP_REWARDS, POINT_REWARDS, recordActivity } from './gamification'
 import type { TierName } from './gamification'
-import type { Job } from '@/types/diagnosis'
+import type { Job, Track } from '@/types/diagnosis'
 
 export interface EvolutionOption {
   job: Job
@@ -23,12 +23,17 @@ const TIER_ORDER: Record<string, number> = { basic: 0, standard: 1, expert: 2, l
 /**
  * Trigger A: Level reached tier threshold -> return available evolution options
  */
-export function getEvolutionOptions(currentJobId: string, userLevel: number): EvolutionOption[] {
-  const currentJob = JOBS.find(j => j.id === currentJobId)
+export function getEvolutionOptions(
+  currentJobId: string,
+  userLevel: number,
+  track: Track = 'job',
+): EvolutionOption[] {
+  const jobs = getTrackConfig(track).jobs
+  const currentJob = jobs.find(j => j.id === currentJobId)
   if (!currentJob || currentJob.advancedJobs.length === 0) return []
 
   return currentJob.advancedJobs
-    .map(id => JOBS.find(j => j.id === id))
+    .map(id => jobs.find(j => j.id === id))
     .filter((j): j is Job => {
       if (!j) return false
       const requiredLevel = TIER_LEVEL_REQUIREMENTS[j.tier as TierName]
@@ -46,19 +51,20 @@ export function getEvolutionOptions(currentJobId: string, userLevel: number): Ev
 export function checkRediagnosisEvolution(
   currentJobId: string,
   newMatchedJobId: string,
-  userLevel: number
+  userLevel: number,
+  track: Track = 'job',
 ): EvolutionOption | null {
   if (currentJobId === newMatchedJobId) return null
 
-  const currentJob = JOBS.find(j => j.id === currentJobId)
-  const newJob = JOBS.find(j => j.id === newMatchedJobId)
+  const jobs = getTrackConfig(track).jobs
+  const currentJob = jobs.find(j => j.id === currentJobId)
+  const newJob = jobs.find(j => j.id === newMatchedJobId)
 
   if (!currentJob || !newJob) return null
 
   const currentTierRank = TIER_ORDER[currentJob.tier] ?? 0
   const newTierRank = TIER_ORDER[newJob.tier] ?? 0
 
-  // Higher tier match AND level requirement met
   if (newTierRank > currentTierRank) {
     const requiredLevel = TIER_LEVEL_REQUIREMENTS[newJob.tier as TierName]
     if (userLevel >= requiredLevel) {
@@ -79,10 +85,12 @@ export async function executeEvolution(
   userId: string,
   fromJobId: string,
   toJobId: string,
-  trigger: 'level_up' | 'rediagnosis'
+  trigger: 'level_up' | 'rediagnosis',
+  track: Track = 'job',
 ): Promise<EvolutionResult> {
-  const fromJob = JOBS.find(j => j.id === fromJobId)
-  const toJob = JOBS.find(j => j.id === toJobId)
+  const jobs = getTrackConfig(track).jobs
+  const fromJob = jobs.find(j => j.id === fromJobId)
+  const toJob = jobs.find(j => j.id === toJobId)
 
   if (!fromJob || !toJob) {
     return { evolved: false, fromJob: null, toJob: null, trigger, expAwarded: 0, pointsAwarded: 0 }
@@ -99,9 +107,10 @@ export async function executeEvolution(
     trigger_type: trigger,
     exp_awarded: expAwarded,
     points_awarded: pointsAwarded,
+    track,
   })
 
-  // Update current job
+  // Update current job (scoped to track)
   await supabase
     .from('user_gamification')
     .update({
@@ -110,25 +119,30 @@ export async function executeEvolution(
       updated_at: new Date().toISOString(),
     })
     .eq('user_id', userId)
+    .eq('track', track)
 
   // Award EXP + Points
-  await recordActivity(userId, 'evolution_achieved', pointsAwarded, expAwarded, {
-    from_job: fromJobId,
-    to_job: toJobId,
-    trigger,
-  })
+  await recordActivity(
+    userId,
+    'evolution_achieved',
+    pointsAwarded,
+    expAwarded,
+    { from_job: fromJobId, to_job: toJobId, trigger },
+    track,
+  )
 
   return { evolved: true, fromJob, toJob, trigger, expAwarded, pointsAwarded }
 }
 
 /**
- * Get evolution history
+ * Get evolution history (track-scoped)
  */
-export async function getEvolutionHistory(userId: string) {
+export async function getEvolutionHistory(userId: string, track: Track = 'job') {
   const { data, error } = await supabase
     .from('user_evolutions')
     .select('*')
     .eq('user_id', userId)
+    .eq('track', track)
     .order('evolved_at', { ascending: false })
 
   return { data, error }
