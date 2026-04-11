@@ -25,7 +25,7 @@ interface TrackDiagnosisBodyProps {
 export function TrackDiagnosisBody({ config }: TrackDiagnosisBodyProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { state: entryState } = useEntryDiagnosis();
+  const { state: entryState, hydrated: entryHydrated } = useEntryDiagnosis();
   const savedRef = useRef(false);
   const prefilledRef = useRef(false);
   const [evolutionOffer, setEvolutionOffer] = useState<{
@@ -48,8 +48,9 @@ export function TrackDiagnosisBody({ config }: TrackDiagnosisBodyProps) {
     categories: config.skillCategories,
   });
 
-  // Prefill from entry diagnosis data if not already set
+  // Prefill from entry diagnosis data if not already set (wait for hydration)
   useEffect(() => {
+    if (!entryHydrated) return;
     if (prefilledRef.current) return;
     if (!state.animalResult && entryState.animalResult && entryState.birthday && entryState.numerologyResult) {
       prefillFromEntry({
@@ -59,17 +60,18 @@ export function TrackDiagnosisBody({ config }: TrackDiagnosisBodyProps) {
       });
       prefilledRef.current = true;
     }
-  }, [entryState, state.animalResult, prefillFromEntry]);
+  }, [entryHydrated, entryState, state.animalResult, prefillFromEntry]);
 
-  // If no entry data and no state, redirect to entry diagnosis
+  // If no entry data and no state, redirect to entry diagnosis (wait for hydration)
   useEffect(() => {
+    if (!entryHydrated) return;
     if (prefilledRef.current) return;
     const hasEntry = entryState.animalResult && entryState.birthday;
     const hasState = state.animalResult && state.birthday;
     if (!hasEntry && !hasState) {
       navigate("/diagnosis");
     }
-  }, [entryState, state, navigate]);
+  }, [entryHydrated, entryState, state, navigate]);
 
   // Save to Supabase when diagnosis completes
   useEffect(() => {
