@@ -176,7 +176,7 @@ export async function recordActivity(
 }
 
 // Login streak: awards POINTS only (shared across tracks — login is global)
-// Writes to BOTH track rows so login counts everywhere
+// Writes to BOTH track rows so streak AND points counts show everywhere
 export async function updateStreak(userId: string) {
   // Use 'job' row as canonical streak record (it's global, but we need a row to update)
   const { data: state } = await getGamificationState(userId, 'job')
@@ -202,13 +202,14 @@ export async function updateStreak(userId: string) {
     })
     .eq('user_id', userId)
 
-  // Points only (EXP = 0) — credit to 'job' track as canonical
+  // Points only (EXP = 0) — credit to BOTH tracks so login rewards are track-agnostic
   let bonusPoints = POINT_REWARDS.daily_login
   if (newStreak === 3) bonusPoints += POINT_REWARDS.login_streak_3
   if (newStreak === 7) bonusPoints += POINT_REWARDS.login_streak_7
   if (newStreak === 30) bonusPoints += POINT_REWARDS.login_streak_30
 
   await recordActivity(userId, 'daily_login', bonusPoints, 0, { streak: newStreak }, 'job')
+  await recordActivity(userId, 'daily_login', bonusPoints, 0, { streak: newStreak }, 'love')
 }
 
 // Journal streak: awards BOTH EXP + Points (affirmation = growth)

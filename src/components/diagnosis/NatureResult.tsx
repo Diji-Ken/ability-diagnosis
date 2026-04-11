@@ -156,11 +156,11 @@ export function NatureResult({
 
       {/* Next Step */}
       <Button onClick={onNext} className="w-full" size="lg">
-        スキル診断へ進む <ArrowRight className="inline w-5 h-5 ml-1" />
+        タイプチェックへ進む <ArrowRight className="inline w-5 h-5 ml-1" />
       </Button>
 
       <p className="text-text-secondary text-xs text-center mt-3">
-        スキルを入力すると、あなたのジョブが判明します
+        簡単な質問に答えて、あなたに合う冒険モードを見つけましょう
       </p>
     </div>
   );

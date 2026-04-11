@@ -193,7 +193,11 @@ export function DashboardPage() {
           <div className="rpg-frame p-6 text-center">
             <Sparkles className={`w-12 h-12 mx-auto mb-3 ${accentClass}`} />
             <h2 className={`text-xl font-bold mb-2 ${accentClass}`}>{'\u307e\u3060\u8a3a\u65ad\u3057\u3066\u3044\u307e\u305b\u3093'}</h2>
-            <p className="text-text-secondary text-sm mb-4">{'\u3042\u306a\u305f\u306eRPG\u30b8\u30e7\u30d6\u3092\u898b\u3064\u3051\u307e\u3057\u3087\u3046'}</p>
+            <p className="text-text-secondary text-sm mb-4">
+              {isLove
+                ? '\u3042\u306a\u305f\u306e\u604b\u611b\u30b8\u30e7\u30d6\u3092\u898b\u3064\u3051\u307e\u3057\u3087\u3046'
+                : '\u3042\u306a\u305f\u306eRPG\u30b8\u30e7\u30d6\u3092\u898b\u3064\u3051\u307e\u3057\u3087\u3046'}
+            </p>
             <Link to={`${basePath}/diagnosis`} className="rpg-button inline-block px-6 py-2">
               {'\u8a3a\u65ad\u3092\u306f\u3058\u3081\u308b'}
             </Link>

@@ -10,20 +10,23 @@ import type { CoreParams } from "@/types/diagnosis";
 
 interface RadarChartProps {
   params: CoreParams;
+  labels?: Record<keyof CoreParams, string>;
+  strokeColor?: string;
   size?: number;
 }
 
-const AXIS_LABELS: Record<keyof CoreParams, string> = {
+const DEFAULT_LABELS: Record<keyof CoreParams, string> = {
   communication: "コミュ力",
   specialist: "専門スキル",
   marketing: "マーケ力",
   ai: "AIスキル",
 };
 
-export function RadarChart({ params }: RadarChartProps) {
-  const data = (Object.keys(AXIS_LABELS) as (keyof CoreParams)[]).map(
+export function RadarChart({ params, labels, strokeColor = "#ffd700" }: RadarChartProps) {
+  const axisLabels = labels ?? DEFAULT_LABELS;
+  const data = (Object.keys(axisLabels) as (keyof CoreParams)[]).map(
     (key) => ({
-      axis: AXIS_LABELS[key],
+      axis: axisLabels[key],
       value: params[key],
       fullMark: 100,
     })
@@ -46,8 +49,8 @@ export function RadarChart({ params }: RadarChartProps) {
         <Radar
           name="パラメータ"
           dataKey="value"
-          stroke="#ffd700"
-          fill="#ffd700"
+          stroke={strokeColor}
+          fill={strokeColor}
           fillOpacity={0.2}
           strokeWidth={2}
         />

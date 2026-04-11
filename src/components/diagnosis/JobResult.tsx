@@ -115,7 +115,11 @@ export function JobResult({
       {/* レーダーチャート */}
       <div className="rpg-frame rounded-lg p-4 mb-4">
         <h3 className={`${accentText} font-bold text-center mb-2`}>スキルパラメータ</h3>
-        <RadarChart params={coreParams} />
+        <RadarChart
+          params={coreParams}
+          labels={paramLabels}
+          strokeColor={isLove ? "#ff6b9d" : "#ffd700"}
+        />
         <div className="grid grid-cols-2 gap-2 mt-2">
           {axisKeys.map((axis) => (
             <ParamDisplay
