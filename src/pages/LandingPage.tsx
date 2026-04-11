@@ -115,6 +115,28 @@ export function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border-rpg/30 py-8 px-4 text-center">
+        <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-3">
+          <Link
+            to="/legal/terms"
+            className="text-text-secondary hover:text-gold text-xs transition-colors"
+          >
+            利用規約
+          </Link>
+          <span className="text-text-secondary/40 text-xs">|</span>
+          <Link
+            to="/legal/privacy"
+            className="text-text-secondary hover:text-gold text-xs transition-colors"
+          >
+            プライバシーポリシー
+          </Link>
+          <span className="text-text-secondary/40 text-xs">|</span>
+          <Link
+            to="/legal/commercial"
+            className="text-text-secondary hover:text-gold text-xs transition-colors"
+          >
+            特定商取引法に基づく表記
+          </Link>
+        </nav>
         <p className="text-text-secondary text-xs">
           &copy; 2025 ABILITY JOB DIAGNOSIS
         </p>

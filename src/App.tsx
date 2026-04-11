@@ -20,6 +20,9 @@ import { ShareCardPage } from '@/pages/ShareCardPage'
 import { CompatibilityPage } from '@/pages/CompatibilityPage'
 import { AnalysisPage } from '@/pages/AnalysisPage'
 import { WeeklyReportPage } from '@/pages/WeeklyReportPage'
+import { TermsPage } from '@/pages/legal/TermsPage'
+import { PrivacyPage } from '@/pages/legal/PrivacyPage'
+import { CommercialPage } from '@/pages/legal/CommercialPage'
 import { AuthGuard } from '@/components/auth/AuthGuard'
 import { JobLayout } from '@/components/layout/JobLayout'
 import { LoveLayout } from '@/components/layout/LoveLayout'
@@ -36,6 +39,11 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/u/:userId" element={<PublicProfilePage />} />
+
+      {/* Legal pages */}
+      <Route path="/legal/terms" element={<TermsPage />} />
+      <Route path="/legal/privacy" element={<PrivacyPage />} />
+      <Route path="/legal/commercial" element={<CommercialPage />} />
 
       {/* Legacy redirects */}
       <Route path="/dashboard" element={<Navigate to="/job/dashboard" replace />} />
