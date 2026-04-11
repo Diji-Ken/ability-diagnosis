@@ -33,19 +33,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    // Get initial session
+    // Get initial session for faster first render.
+    // NOTE: updateStreak is intentionally NOT called here — onAuthStateChange
+    // below fires an INITIAL_SESSION event on subscribe which handles it.
+    // Calling updateStreak from both paths caused a race condition where the
+    // lastActive === today idempotency guard let a duplicate fire through,
+    // awarding login points twice (and to each track, because of the split).
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s)
       setUser(s?.user ?? null)
       setLoading(false)
-
-      // Update streak on login
-      if (s?.user) {
-        updateStreak(s.user.id).catch(console.error)
-      }
     })
 
-    // Listen for auth changes
+    // Listen for auth changes (also fires INITIAL_SESSION on mount)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s)
       setUser(s?.user ?? null)
