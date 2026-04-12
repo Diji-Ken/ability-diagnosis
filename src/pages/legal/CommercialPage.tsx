@@ -47,26 +47,36 @@ export function CommercialPage() {
             <div>
               <dt className="text-fire font-bold mb-1">事業者名</dt>
               <dd className="text-text-secondary">
-                個人開発者として運営しています。一般公開時に正式な氏名・屋号等へ差し替え予定です。
+                株式会社デジタルツール研究所
               </dd>
             </div>
 
             <div>
+              <dt className="text-fire font-bold mb-1">法人番号</dt>
+              <dd className="text-text-secondary">9030001161292</dd>
+            </div>
+
+            <div>
+              <dt className="text-fire font-bold mb-1">資本金</dt>
+              <dd className="text-text-secondary">3,100,000円</dd>
+            </div>
+
+            <div>
               <dt className="text-fire font-bold mb-1">運営責任者</dt>
-              <dd className="text-text-secondary">同上（個人開発者）</dd>
+              <dd className="text-text-secondary">代表取締役 松岡哲平</dd>
             </div>
 
             <div>
               <dt className="text-fire font-bold mb-1">所在地</dt>
               <dd className="text-text-secondary">
-                個人開発のため非公開としています。請求があった場合は、遅滞なく開示します。
+                〒110-0004 東京都台東区下谷二丁目23-8リベール上野4F
               </dd>
             </div>
 
             <div>
               <dt className="text-fire font-bold mb-1">電話番号</dt>
               <dd className="text-text-secondary">
-                個人開発のため非公開としています。請求があった場合は、遅滞なく開示します。
+                080-3726-7100
               </dd>
             </div>
 
@@ -85,7 +95,7 @@ export function CommercialPage() {
                       https://github.com/Diji-Ken/ability-diagnosis/issues
                     </a>
                   </li>
-                  <li>メール: ability-diagnosis-support@example.com（仮設置）</li>
+                  <li>メール: contact@digitool-lab.com</li>
                 </ul>
               </dd>
             </div>

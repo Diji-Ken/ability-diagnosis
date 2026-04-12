@@ -149,7 +149,7 @@ export function TermsPage() {
                   https://github.com/Diji-Ken/ability-diagnosis/issues
                 </a>
               </li>
-              <li>メール: ability-diagnosis-support@example.com（仮設置）</li>
+              <li>メール: contact@digitool-lab.com</li>
             </ul>
           </section>
 
