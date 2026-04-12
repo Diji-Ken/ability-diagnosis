@@ -136,6 +136,13 @@ export function LandingPage() {
           >
             特定商取引法に基づく表記
           </Link>
+          <span className="text-text-secondary/40 text-xs">|</span>
+          <Link
+            to="/help"
+            className="text-text-secondary hover:text-gold text-xs transition-colors"
+          >
+            テストマニュアル
+          </Link>
         </nav>
         <p className="text-text-secondary text-xs">
           &copy; 2025 ABILITY JOB DIAGNOSIS

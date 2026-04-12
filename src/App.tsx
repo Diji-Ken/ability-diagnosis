@@ -23,6 +23,7 @@ import { WeeklyReportPage } from '@/pages/WeeklyReportPage'
 import { TermsPage } from '@/pages/legal/TermsPage'
 import { PrivacyPage } from '@/pages/legal/PrivacyPage'
 import { CommercialPage } from '@/pages/legal/CommercialPage'
+import { HelpPage } from '@/pages/HelpPage'
 import { AuthGuard } from '@/components/auth/AuthGuard'
 import { JobLayout } from '@/components/layout/JobLayout'
 import { LoveLayout } from '@/components/layout/LoveLayout'
@@ -39,6 +40,9 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/u/:userId" element={<PublicProfilePage />} />
+
+      {/* Help page */}
+      <Route path="/help" element={<HelpPage />} />
 
       {/* Legal pages */}
       <Route path="/legal/terms" element={<TermsPage />} />
