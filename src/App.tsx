@@ -24,6 +24,10 @@ import { TermsPage } from '@/pages/legal/TermsPage'
 import { PrivacyPage } from '@/pages/legal/PrivacyPage'
 import { CommercialPage } from '@/pages/legal/CommercialPage'
 import { HelpPage } from '@/pages/HelpPage'
+import { LovePreviewIndex } from '@/pages/love-preview/LovePreviewIndex'
+import { LoveDreamyPreview } from '@/pages/love-preview/LoveDreamyPreview'
+import { LoveElegantPreview } from '@/pages/love-preview/LoveElegantPreview'
+import { LovePlayfulPreview } from '@/pages/love-preview/LovePlayfulPreview'
 import { AuthGuard } from '@/components/auth/AuthGuard'
 import { JobLayout } from '@/components/layout/JobLayout'
 import { LoveLayout } from '@/components/layout/LoveLayout'
@@ -43,6 +47,12 @@ function App() {
 
       {/* Help page */}
       <Route path="/help" element={<HelpPage />} />
+
+      {/* LOVE Design Preview (public, standalone — does NOT affect real /love/*) */}
+      <Route path="/love-preview" element={<LovePreviewIndex />} />
+      <Route path="/love-preview/dreamy" element={<LoveDreamyPreview />} />
+      <Route path="/love-preview/elegant" element={<LoveElegantPreview />} />
+      <Route path="/love-preview/playful" element={<LovePlayfulPreview />} />
 
       {/* Legal pages */}
       <Route path="/legal/terms" element={<TermsPage />} />
