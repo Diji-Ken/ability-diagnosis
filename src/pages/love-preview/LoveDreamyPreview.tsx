@@ -62,13 +62,16 @@ export function LoveDreamyPreview() {
         </div>
 
         {/* Header */}
-        <header className="flex items-center justify-between py-3">
-          <span className="dr-caveat text-3xl" style={{ color: '#FF6B8A' }}>
-            ability love ♡
-          </span>
+        <header className="flex items-center justify-between gap-3 py-3">
+          <img
+            src="/images/dreamy/logo.png"
+            alt="ability love"
+            className="h-10 w-auto sm:h-12"
+            loading="eager"
+          />
           <button
             type="button"
-            className="dr-zen inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
+            className="dr-zen inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
             style={{
               background: '#FFFFFF',
               color: '#8A7C95',
