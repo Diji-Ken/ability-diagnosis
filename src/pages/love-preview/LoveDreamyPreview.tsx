@@ -168,19 +168,19 @@ export function LoveDreamyPreview() {
             label="Level"
             value={`Lv.${mockUser.level}`}
             sub={mockUser.levelTitle}
-            emoji="✨"
+            iconSrc="/images/dreamy/icon-level.png"
           />
           <StatusCard
             label="Streak"
             value={`${mockUser.streak}日`}
             sub="連続記録"
-            emoji="🌸"
+            iconSrc="/images/dreamy/icon-streak.png"
           />
           <StatusCard
             label="Points"
             value={`${mockUser.points}`}
             sub="pt"
-            emoji="💎"
+            iconSrc="/images/dreamy/icon-points.png"
           />
         </section>
 
@@ -290,20 +290,24 @@ function StatusCard({
   label,
   value,
   sub,
-  emoji,
+  iconSrc,
 }: {
   label: string
   value: string
   sub: string
-  emoji: string
+  iconSrc: string
 }) {
   return (
     <div
       className="dr-soft-shadow-sm flex flex-col items-center gap-1 rounded-[18px] bg-white px-2 py-4"
     >
-      <span className="text-xl" aria-hidden>
-        {emoji}
-      </span>
+      <img
+        src={iconSrc}
+        alt=""
+        aria-hidden
+        className="h-10 w-10 object-contain"
+        loading="lazy"
+      />
       <span
         className="dr-caveat text-sm leading-none"
         style={{ color: '#C9B1E8' }}
