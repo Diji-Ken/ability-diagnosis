@@ -1,15 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  ArrowLeft,
-  BookHeart,
-  Heart,
-  Sparkles,
-  Share2,
-  RefreshCcw,
-  History,
-  Swords,
-} from 'lucide-react'
+import { ArrowLeft, Swords } from 'lucide-react'
 import { mockUser } from './mock'
 
 /**
@@ -174,13 +165,13 @@ export function LoveDreamyPreview() {
             label="Streak"
             value={`${mockUser.streak}日`}
             sub="連続記録"
-            iconSrc="/images/dreamy/icon-streak.png"
+            iconSrc="/images/dreamy/icon-streak.jpg"
           />
           <StatusCard
             label="Points"
             value={`${mockUser.points}`}
             sub="pt"
-            iconSrc="/images/dreamy/icon-points.png"
+            iconSrc="/images/dreamy/icon-points.jpg"
           />
         </section>
 
@@ -220,18 +211,12 @@ export function LoveDreamyPreview() {
             Quick Actions
           </h3>
           <div className="grid grid-cols-3 gap-3">
-            <QuickAction icon={<BookHeart strokeWidth={1.5} />} label="日誌" />
-            <QuickAction icon={<Heart strokeWidth={1.5} />} label="相性" />
-            <QuickAction
-              icon={<Sparkles strokeWidth={1.5} />}
-              label="AI分析"
-            />
-            <QuickAction icon={<Share2 strokeWidth={1.5} />} label="シェア" />
-            <QuickAction
-              icon={<RefreshCcw strokeWidth={1.5} />}
-              label="再診断"
-            />
-            <QuickAction icon={<History strokeWidth={1.5} />} label="履歴" />
+            <QuickAction iconSrc="/images/dreamy/icon-journal.png" label="日誌" />
+            <QuickAction iconSrc="/images/dreamy/icon-compat.jpg" label="相性" />
+            <QuickAction iconSrc="/images/dreamy/icon-ai.png" label="AI分析" />
+            <QuickAction iconSrc="/images/dreamy/icon-share.png" label="シェア" />
+            <QuickAction iconSrc="/images/dreamy/icon-rediagnose.png" label="再診断" />
+            <QuickAction iconSrc="/images/dreamy/icon-history.png" label="履歴" />
           </div>
         </section>
 
@@ -326,20 +311,24 @@ function StatusCard({
 }
 
 function QuickAction({
-  icon,
+  iconSrc,
   label,
 }: {
-  icon: React.ReactNode
+  iconSrc: string
   label: string
 }) {
   return (
     <button
       type="button"
-      className="dr-soft-shadow-sm flex aspect-square flex-col items-center justify-center gap-1.5 rounded-[18px] bg-white transition-transform hover:-translate-y-0.5"
+      className="dr-soft-shadow-sm flex aspect-square flex-col items-center justify-center gap-1 rounded-[18px] bg-white transition-transform hover:-translate-y-0.5"
     >
-      <span style={{ color: '#FF9FB2' }} className="dr-anim">
-        {icon}
-      </span>
+      <img
+        src={iconSrc}
+        alt=""
+        aria-hidden
+        className="h-14 w-14 object-contain"
+        loading="lazy"
+      />
       <span
         className="dr-zen text-xs font-medium"
         style={{ color: '#5A4A5E' }}
